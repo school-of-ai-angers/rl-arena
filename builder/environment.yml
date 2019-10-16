@@ -5,3 +5,4 @@ channels:
 dependencies:
   - python=3.7
   - pip=19.1.1
+  - pymongo=3.9.0

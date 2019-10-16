@@ -1,10 +1,14 @@
+import time
 import argparse
 from build import build
+from mongo import db
 
 if __name__ == "__main__":
-    # Parse args
-    parser = argparse.ArgumentParser()
-    parser.add_argument('zip', help='The path to the target ZIP file')
-    args = parser.parse_args()
+    while True:
+        print('Will look for a new build job')
+        next_job = db.build_jobs.find_one({'status': 'PENDING'})
 
-    print(build(args.zip))
+        if next_job is not None:
+            print(f'Found job {next_job["_id"]}')
+
+        time.sleep(30)
