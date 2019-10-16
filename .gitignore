@@ -1,3 +1,6 @@
 data
 .vscode
 __pycache__
+.terraform
+secrets.tfvars
+terraform.tfstate.backup

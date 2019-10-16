@@ -2,3 +2,15 @@ version: "3"
 services:
   builder:
     build: builder
+    restart: always
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DB: rl-arena
+  mongo:
+    image: mongo:4.2
+    restart: always
+    command:
+      - --wiredTigerCacheSizeGB
+      - "1.5"
+    volumes:
+      - ./data/mongo:/data/db
