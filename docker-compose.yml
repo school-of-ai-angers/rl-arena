@@ -1,16 +1,16 @@
 version: "3"
 services:
-  builder:
-    build: builder
+  db:
+    image: postgres:12
     restart: always
     environment:
-      MONGO_URI: mongodb://mongo:27017
-      MONGO_DB: rl-arena
-  mongo:
-    image: mongo:4.2
-    restart: always
-    command:
-      - --wiredTigerCacheSizeGB
-      - "1.5"
+      POSTGRES_PASSWORD: password
     volumes:
-      - ./data/mongo:/data/db
+      - ./data/db:/var/lib/postgresql/data
+  web:
+    build: .
+    environment:
+      POSTGRES_HOST: db
+    ports:
+      - 8000:8000
+    restart: always
