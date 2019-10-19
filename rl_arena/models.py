@@ -1,6 +1,7 @@
 from django.db import models
 from rl_arena.settings import MEDIA_ROOT
 from django.core.validators import RegexValidator
+from django.contrib.auth.models import AbstractUser
 
 
 def _choices_with(values):
@@ -19,13 +20,12 @@ class Environment(models.Model):
     # because players will alternate who starts
     num_matches_in_duel = models.PositiveIntegerField()
 
+    def __str__(self):
+        return self.name
 
-class User(models.Model):
+
+class User(AbstractUser):
     """ A submitter (no identifying information is needed) """
-    # Display name
-    name = models.CharField(max_length=100)
-    # URL name
-    slug = models.SlugField(unique=True)
     # GitHub account
     github = models.CharField(max_length=100, blank=True)
 

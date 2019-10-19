@@ -16,7 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+import rl_arena.views as views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('web/', include('web.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('', views.home, name='home'),
+    path('environment/<slug:slug>/',
+         views.environment_home, name='environment_home')
 ]

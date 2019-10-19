@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'rl_arena.User'
+
+LOGOUT_REDIRECT_URL = 'home'
+
 # Media
 
 MEDIA_ROOT = BASE_DIR + '/data/media/'
@@ -34,7 +38,7 @@ MEDIA_ROOT = BASE_DIR + '/data/media/'
 # Application definition
 
 INSTALLED_APPS = [
-    'web.apps.WebConfig',
+    'rl_arena.apps.Config',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
