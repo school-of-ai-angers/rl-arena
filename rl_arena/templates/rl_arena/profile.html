@@ -1,0 +1,10 @@
+{% extends 'rl_arena/base.html' %}
+
+{% block content %}
+<h2>Profile of {{user.username}}</h2>
+
+{% if user.github %}
+<p>GitHub profile: <a href="https://github.com/{{ user.github | urlencode }}/">{{ user.github }}</a></p>
+{% endif %}
+
+{% endblock content %}

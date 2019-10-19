@@ -1,17 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, Http404
 from django.template import loader
-from .models import Environment
+from .models import Environment, User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from .forms import CreateAccountForm
 
-
-def home(request):
-    environments = Environment.objects.all()
-    return render(request, 'rl_arena/home.html', {
-        'environments': environments
-    })
+# Accounts
 
 
 def create_account(request):
@@ -35,5 +30,22 @@ def create_account(request):
     })
 
 
+def user_home(request, username):
+    user = get_object_or_404(User, username=username)
+    return render(request, 'rl_arena/user_home.html', {
+        'user': user
+    })
+
+
+def home(request):
+    environments = Environment.objects.all()
+    return render(request, 'rl_arena/home.html', {
+        'environments': environments
+    })
+
+
 def environment_home(request, slug):
-    return HttpResponse(f'The home page for the environment {slug}')
+    environment = get_object_or_404(Environment, slug=slug)
+    return render(request, 'rl_arena/environment_home.html', {
+        'environment': environment
+    })

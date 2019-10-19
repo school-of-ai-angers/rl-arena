@@ -1,3 +1,8 @@
+{% extends 'rl_arena/base.html' %}
+
+{% block user %}{% endblock user %}
+
+{% block content %}
 {% if form.errors %}
 <p>Your username and password didn't match. Please try again.</p>
 {% endif %}
@@ -17,9 +22,10 @@
 {{ form }}
 </table>
 
-<input type="submit" value="login">
+<input type="submit" value="Login">
 <input type="hidden" name="next" value="{{ next }}">
 </form>
 
 <p><a href="{% url 'create_account' %}">Create account</a></p>
-<p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+<p>Lost password? Contact the site administrator</p>
+{% endblock content %}

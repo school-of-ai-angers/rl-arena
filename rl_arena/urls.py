@@ -15,14 +15,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+import django.contrib.auth.views as auth_views
 
 import rl_arena.views as views
 
 urlpatterns = [
+    # Admin panel
     path('admin/', admin.site.urls),
-    path('accounts/', include('django.contrib.auth.urls')),
+
+    # Accounts
+    path('login/', auth_views.LoginView.as_view(template_name='rl_arena/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('create_account/', views.create_account, name='create_account'),
+    path('user/<username>/', views.user_home, name='user_home'),
+
+    # Main app
     path('', views.home, name='home'),
-    path('create_account', views.create_account, name='create_account'),
     path('environment/<slug:slug>/',
          views.environment_home, name='environment_home')
 ]
