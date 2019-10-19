@@ -25,9 +25,15 @@ class Environment(models.Model):
 
 
 class User(AbstractUser):
-    """ A submitter (no identifying information is needed) """
+    """ A submitter """
+    email = models.EmailField(
+        unique=True, help_text='Will not made public in any way and will not be used for communications')
     # GitHub account
     github = models.CharField(max_length=100, blank=True)
+
+    # User email for login, since it is much easier to remember
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
 
 class Submission(models.Model):
