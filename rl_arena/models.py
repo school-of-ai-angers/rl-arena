@@ -1,7 +1,8 @@
 from django.db import models
 from rl_arena.settings import MEDIA_ROOT
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, FileExtensionValidator
 from django.contrib.auth.models import AbstractUser
+from markdown import markdown
 
 
 def _choices_with(values):
@@ -22,6 +23,10 @@ class Environment(models.Model):
 
     def __str__(self):
         return self.name
+
+    def description_html(self):
+        """ Return the description in HTML text """
+        return markdown(self.description)
 
 
 class User(AbstractUser):
@@ -48,9 +53,10 @@ class Submission(models.Model):
     # The date of submission
     created_at = models.DateTimeField(auto_now_add=True)
     # The ZIPped source
-    zip_file = models.FileField(upload_to='submissions/')
+    zip_file = models.FileField(
+        upload_to='submissions/', validators=[FileExtensionValidator(['zip'])])
     # Link to GitHub sources
-    github_commit = models.CharField(max_length=200, blank=True, validators=[RegexValidator(
+    github_source = models.CharField(max_length=200, blank=True, validators=[RegexValidator(
         r'^https://github.com/[^/]+/[^/]+/tree/[^/]+$')])
     # Whether the source is public
     is_public = models.BooleanField()
@@ -78,27 +84,31 @@ class Submission(models.Model):
         TESTING,
         FAILED_SMOKE_TEST,
         READY,
-    ]))
+    ]), default=WAITING_BUILD)
 
     # Docker image data
 
     # When the build process started and ended
-    image_started_at = models.DateTimeField(blank=True)
-    image_ended_at = models.DateTimeField(blank=True)
+    image_started_at = models.DateTimeField(null=True)
+    image_ended_at = models.DateTimeField(null=True)
     # Docker image name and tag
     image_name = models.CharField(blank=True, max_length=200)
     # Docker build logs
     image_logs = models.FilePathField(
-        blank=True, path=MEDIA_ROOT+'submission_image_logs/')
+        null=True, path=MEDIA_ROOT+'submission_image_logs/')
 
     # Smoke test data
 
     # When the smoke test process started and ended
-    test_started_at = models.DateTimeField(blank=True)
-    test_ended_at = models.DateTimeField(blank=True)
+    test_started_at = models.DateTimeField(null=True)
+    test_ended_at = models.DateTimeField(null=True)
     # Smoke test logs
     test_logs = models.FilePathField(
-        blank=True, path=MEDIA_ROOT+'submission_test_logs/')
+        null=True, path=MEDIA_ROOT+'submission_test_logs/')
+
+    def is_fully_visible_for(self, user):
+        """ Determines whether all information about this submission is accessible by the given user """
+        return self.is_public or user.is_superuser or self.submitter == user
 
 
 class TournamentSubmission(models.Model):
@@ -141,9 +151,9 @@ class Tournament(models.Model):
     state = models.CharField(max_length=100, choices=_choices_with([
         RUNNING,
         FAILED,
-        COMPLETED]))
+        COMPLETED]), default=RUNNING)
 
-    ended_at = models.DateTimeField(blank=True)
+    ended_at = models.DateTimeField(null=True)
     submissions = models.ManyToManyField(
         Submission, through=TournamentSubmission)
 
@@ -180,8 +190,8 @@ class Duel(models.Model):
         SCHEDULED,
         RUNNING,
         FAILED,
-        COMPLETED]))
+        COMPLETED]), default=SCHEDULED)
 
-    started_at = models.DateTimeField(blank=True)
-    ended_at = models.DateTimeField(blank=True)
-    logs = models.FilePathField(blank=True, path=MEDIA_ROOT+'duel_logs/')
+    started_at = models.DateTimeField(null=True)
+    ended_at = models.DateTimeField(null=True)
+    logs = models.FilePathField(null=True, path=MEDIA_ROOT+'duel_logs/')

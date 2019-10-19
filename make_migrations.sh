@@ -16,7 +16,7 @@ docker-compose --project-name "$NAMESPACE" run --rm -T web \
     "python manage.py migrate" || true
 
 echo === Create new migration ===
-docker-compose --project-name "$NAMESPACE" run --rm -T \
+docker-compose --project-name "$NAMESPACE" run --rm \
     --volume "$PWD/rl_arena/migrations":/app/rl_arena/migrations web \
     "python manage.py makemigrations" || true
 sudo chown -R "$(id -u):$(id -g)" rl_arena/migrations

@@ -1,5 +1,21 @@
 {% extends 'rl_arena/base.html' %}
 
 {% block content %}
-<h2>Environment {{environment.name}}</h2>
+<h2>Environment {{ environment.name }}</h2>
+
+<div>{{ environment.description_html | safe }}</div>
+
+<h3>Submit your player</h3>
+{% if request.user.is_authenticated %}
+    <form action="{% url 'new_submission' environment.slug %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table>
+        {{ new_submission_form }}
+    </table>
+    <input type="submit" value="Upload">
+    </form>
+{% else %}
+    Please login before
+{% endif %}
+
 {% endblock content %}
