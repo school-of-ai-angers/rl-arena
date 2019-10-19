@@ -6,11 +6,14 @@ services:
     environment:
       POSTGRES_PASSWORD: password
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - ./data/${POSTGRES_DIR:-db}:/var/lib/postgresql/data
   web:
-    build: .
+    image: rl-arena
     environment:
       POSTGRES_HOST: db
+      POSTGRES_NAME: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
     ports:
       - 8000:8000
     restart: always

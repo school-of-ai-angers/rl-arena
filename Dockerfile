@@ -12,5 +12,6 @@ ENV PATH /opt/conda/envs/$(head -1 /app/environment.yml | cut -d' ' -f2)/bin:$PA
 COPY . .
 
 ENV PYTHONUNBUFFERED=1
+ENTRYPOINT [ "bash", "-l", "-c" ]
 
-ENTRYPOINT [ "bash", "-l", "-c", "python manage.py runserver 0.0.0.0:8000" ]
+CMD [ "python manage.py runserver 0.0.0.0:8000" ]
