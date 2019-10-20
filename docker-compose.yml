@@ -58,3 +58,6 @@ services:
       - DJANGO_SETTINGS_MODULE=builder.settings
     volumes:
       - ./data/media:/app/data/media
+      # Allows to run docker from inside the container
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: [python -m builder.main]

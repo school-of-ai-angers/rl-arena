@@ -18,8 +18,13 @@
         <ul>
             <li>Started at {{ submission.image_started_at }}</li>
             <li>Ended at {{ submission.image_ended_at }}</li>
-            {% if fully_visible and submission.image_logs %}
-                <li><a href="{% url 'submission_image_logs' submission.environment.slug submission.pk %}">Download build logs</a></li>
+            {% if fully_visible %}
+                {% if submission.image_error_msg %}
+                    <li>Error: {{ submission.image_error_msg }}</li>
+                {% endif %}
+                {% if submission.image_logs %}
+                    <li><a href="{% url 'submission_image_logs' submission.environment.slug submission.pk %}">Download build logs</a></li>
+                {% endif %}
             {% endif %}
         </ul>
     </li>

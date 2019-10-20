@@ -54,7 +54,7 @@ def build(zip_path):
                         f'The expected file {expected_file} was not found in the provided ZIP')
 
             # Copy extra image files
-            for image_file in os.scandir('image'):
+            for image_file in os.scandir('builder/image'):
                 shutil.copy2(image_file.path, tmpdir)
 
             # Build image

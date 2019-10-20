@@ -92,6 +92,8 @@ class Submission(models.Model):
     # When the build process started and ended
     image_started_at = models.DateTimeField(null=True)
     image_ended_at = models.DateTimeField(null=True)
+    # Main reason for the failed build
+    image_error_msg = models.CharField(blank=True, max_length=200)
     # Docker image name and tag
     image_name = models.CharField(blank=True, max_length=200)
     # Docker build logs

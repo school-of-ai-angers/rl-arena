@@ -1,12 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, Http404, HttpResponseBadRequest
+from django.http import HttpResponse, Http404, HttpResponseBadRequest, HttpResponseForbidden
 from django.template import loader
 from django.urls import reverse
 from core.models import Environment, User, Submission
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.views import redirect_to_login
 from .forms import CreateAccountForm, NewSubmissionForm
+from wsgiref.util import FileWrapper
+from django.core.exceptions import PermissionDenied
+import os
 
 # Accounts
 
@@ -88,13 +92,47 @@ def submission_home(request, slug, pk):
     })
 
 
+def _get_fully_visible_submission(request, env_slug, submission_pk):
+    """
+    :param request:
+    :param env_slug: str
+    :param submission_pk: int
+    :returns: Submission
+    """
+    submission = get_object_or_404(
+        Submission, environment__slug=env_slug, pk=submission_pk)
+    if not submission.is_fully_visible_for(request.user):
+        raise PermissionDenied()
+    return submission
+
+
+def _serve_file(file_path, download_name, content_type):
+    """
+    :param file_path: str
+    :param content_type: str
+    :returns" HttpResponse
+    """
+    wrapper = FileWrapper(open(file_path, 'rb'))
+    response = HttpResponse(wrapper, content_type=content_type)
+    response['Content-Disposition'] = f'attachment; filename={download_name}'
+    response['Content-Length'] = os.path.getsize(file_path)
+    return response
+
+
 def submission_download(request, slug, pk):
-    pass
+    submission = _get_fully_visible_submission(request, slug, pk)
+    return _serve_file(submission.zip_file.path, 'submission.zip', 'application/zip')
 
 
 def submission_image_logs(request, slug, pk):
-    pass
+    submission = _get_fully_visible_submission(request, slug, pk)
+    if submission.image_logs is None:
+        raise Http404()
+    return _serve_file(submission.image_logs, 'image.log', 'application/text')
 
 
 def submission_test_logs(request, slug, pk):
-    pass
+    submission = _get_fully_visible_submission(request, slug, pk)
+    if submission.test_logs is None:
+        raise Http404()
+    return _serve_file(submission.test_logs, 'test.log', 'application/text')
