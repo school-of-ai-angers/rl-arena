@@ -12,7 +12,7 @@ if [[ -z $PS_BEFORE ]]; then
 fi
 
 echo === Migrate DB ===
-docker-compose run --rm -T web "python manage.py migrate"
+docker-compose run --rm -T migrate
 
 echo === Main Django app ===
 docker-compose run --publish 8000:8000 \

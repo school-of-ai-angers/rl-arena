@@ -3,6 +3,7 @@ from core.settings import MEDIA_ROOT
 from django.core.validators import RegexValidator, FileExtensionValidator
 from django.contrib.auth.models import AbstractUser
 from markdown import markdown
+import unicodedata
 
 
 def _choices_with(values):

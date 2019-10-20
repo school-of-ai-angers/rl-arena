@@ -4,18 +4,44 @@ services:
     image: postgres:12
     restart: always
     environment:
-      POSTGRES_PASSWORD: password
+      - POSTGRES_PASSWORD
     volumes:
       - ./data/${POSTGRES_DIR:-db}:/var/lib/postgresql/data
+  make_migrations:
+    image: rl-arena
+    environment:
+      - POSTGRES_PASSWORD
+      - DJANGO_SECRET_KEY
+      - POSTGRES_HOST=db
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - DJANGO_SETTINGS_MODULE=core.settings
+    volumes:
+      - ./core/migrations:/app/core/migrations
+    command: [python manage.py makemigrations]
+  migrate:
+    image: rl-arena
+    environment:
+      - POSTGRES_PASSWORD
+      - SUPERUSER_USERNAME
+      - SUPERUSER_EMAIL
+      - SUPERUSER_PASSWORD
+      - DJANGO_SECRET_KEY
+      - POSTGRES_HOST=db
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - DJANGO_SETTINGS_MODULE=core.settings
+    command: [python manage.py migrate]
   web:
     image: rl-arena
     restart: always
     environment:
-      POSTGRES_HOST: db
-      POSTGRES_NAME: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      DJANGO_SETTINGS_MODULE: web.settings
+      - POSTGRES_PASSWORD
+      - DJANGO_SECRET_KEY
+      - POSTGRES_HOST=db
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - DJANGO_SETTINGS_MODULE=web.settings
     ports:
       - 8000:8000
     volumes:
@@ -24,10 +50,11 @@ services:
     image: rl-arena
     restart: always
     environment:
-      POSTGRES_HOST: db
-      POSTGRES_NAME: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      DJANGO_SETTINGS_MODULE: builder.settings
+      - POSTGRES_PASSWORD
+      - DJANGO_SECRET_KEY
+      - POSTGRES_HOST=db
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - DJANGO_SETTINGS_MODULE=builder.settings
     volumes:
       - ./data/media:/app/data/media

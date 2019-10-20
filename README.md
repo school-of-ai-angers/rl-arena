@@ -16,5 +16,5 @@ data
 
 1. Clone this repo
 2. Install Docker and docker-compose
-3. Run `./prepare_dev.sh`
-4. Run in another terminal `docker-compose run --rm web 'python manage.py createsuperuser'` to create your root account
+3. Copy `example.env` as `.env` and edit it
+4. Run `./prepare_dev.sh`
