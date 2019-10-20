@@ -1,4 +1,4 @@
-"""rl_arena URL Configuration
+"""web URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.2/topics/http/urls/
@@ -13,18 +13,14 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import path, include
 import django.contrib.auth.views as auth_views
 
-import rl_arena.views as views
+import web.views as views
 
 urlpatterns = [
-    # Admin panel
-    path('admin/', admin.site.urls),
-
     # Accounts
-    path('login/', auth_views.LoginView.as_view(template_name='rl_arena/login.html'), name='login'),
+    path('login/', auth_views.LoginView.as_view(template_name='web/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('create_account/', views.create_account, name='create_account'),
     path('user/<username>/', views.user_home, name='user_home'),

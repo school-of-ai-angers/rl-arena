@@ -1,5 +1,5 @@
 from django.db import models
-from rl_arena.settings import MEDIA_ROOT
+from core.settings import MEDIA_ROOT
 from django.core.validators import RegexValidator, FileExtensionValidator
 from django.contrib.auth.models import AbstractUser
 from markdown import markdown

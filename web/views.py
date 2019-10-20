@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, Http404, HttpResponseBadRequest
 from django.template import loader
 from django.urls import reverse
-from .models import Environment, User, Submission
+from core.models import Environment, User, Submission
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
@@ -27,14 +27,14 @@ def create_account(request):
     else:
         form = CreateAccountForm()
 
-    return render(request, 'rl_arena/create_account.html', {
+    return render(request, 'web/create_account.html', {
         'form': form
     })
 
 
 def user_home(request, username):
     user = get_object_or_404(User, username=username)
-    return render(request, 'rl_arena/user_home.html', {
+    return render(request, 'web/user_home.html', {
         'user': user
     })
 
@@ -43,14 +43,14 @@ def user_home(request, username):
 
 def home(request):
     environments = Environment.objects.order_by('name')
-    return render(request, 'rl_arena/home.html', {
+    return render(request, 'web/home.html', {
         'environments': environments
     })
 
 
 def environment_home(request, slug, new_submission_form=None):
     environment = get_object_or_404(Environment, slug=slug)
-    return render(request, 'rl_arena/environment_home.html', {
+    return render(request, 'web/environment_home.html', {
         'environment': environment,
         'new_submission_form': new_submission_form or NewSubmissionForm()
     })
@@ -82,7 +82,7 @@ def new_submission(request, slug):
 
 def submission_home(request, slug, pk):
     submission = get_object_or_404(Submission, environment__slug=slug, pk=pk)
-    return render(request, 'rl_arena/submission_home.html', {
+    return render(request, 'web/submission_home.html', {
         'submission': submission,
         'fully_visible': submission.is_fully_visible_for(request.user)
     })
