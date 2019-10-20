@@ -1,11 +1,16 @@
 # This file will expose the player as a HTTP API
 
 from flask import Flask, escape, request
-from sample_player.player import Player
+from player import Player
 import numpy as np
 
 app = Flask(__name__)
 player = Player(False)
+
+
+@app.route('/health-check')
+def health_check():
+    return 'OK'
 
 
 @app.route('/start', methods=['POST'])
