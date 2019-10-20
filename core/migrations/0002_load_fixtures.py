@@ -19,10 +19,11 @@ def load_fixtures(apps, schema_editor):
 
     # Create environments
     Environment = apps.get_model('core', 'Environment')
-    for definition in os.scandir('metadata/environments'):
-        with open(definition.path) as fp:
-            env_dict = safe_load(fp)
-        Environment.objects.create(**env_dict)
+    for env_entry in os.scandir('environments'):
+        if env_entry.is_dir():
+            with open(os.path.join(env_entry.path, 'info.yml')) as fp:
+                env_dict = safe_load(fp)
+            Environment.objects.create(**env_dict)
 
 
 class Migration(migrations.Migration):

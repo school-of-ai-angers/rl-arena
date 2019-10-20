@@ -21,6 +21,8 @@ class Environment(models.Model):
     # How many matches will be played in each duel. Should be an even number,
     # because players will alternate who starts
     num_matches_in_duel = models.PositiveIntegerField()
+    memory_limit = models.CharField(max_length=50)
+    cpu_limit = models.FloatField()
 
     def __str__(self):
         return self.name
@@ -105,6 +107,8 @@ class Submission(models.Model):
     # When the smoke test process started and ended
     test_started_at = models.DateTimeField(null=True)
     test_ended_at = models.DateTimeField(null=True)
+    # Main reason for the failed smoke test
+    test_error_msg = models.CharField(blank=True, max_length=200)
     # Smoke test logs
     test_logs = models.FilePathField(
         null=True, path=MEDIA_ROOT+'submission_test_logs/')
