@@ -1,0 +1,14 @@
+.tic-tac-toe-board td {
+    width: 100px;
+    height: 100px;
+}
+
+.tic-tac-toe-vertical {
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+}
+
+.tic-tac-toe-vertical {
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+}

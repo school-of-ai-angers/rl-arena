@@ -1,11 +1,9 @@
 name: Quarto
 slug: quarto
 description: |
-  # Quarto
-
   Quarto is a board game for two players invented by Swiss mathematician Blaise Müller in 1991. It is published and copyrighted by Gigamic.
 
-  ![Quarto board](/static/web/QuartoSpiel.JPG)
+  ![Quarto board](/static/environment-quarto/QuartoSpiel.JPG)
 
   The game is played on a 4×4 board. There are 16 unique pieces to play with, each of which is either:
 
@@ -20,3 +18,5 @@ description: |
 
   Source: [Wikipedia](https://en.wikipedia.org/wiki/Quarto_(board_game))
 num_matches_in_duel: 1000
+memory_limit: 100m
+cpu_limit: 0.2
