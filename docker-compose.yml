@@ -1,6 +1,7 @@
 version: "3"
 services:
   db:
+    # The Postgres database
     image: postgres:12
     restart: always
     environment:
@@ -8,6 +9,7 @@ services:
     volumes:
       - ./data/${POSTGRES_DIR:-db}:/var/lib/postgresql/data
   make_migrations:
+    # Dev command used to create the necessary database migrations
     image: rl-arena
     environment:
       - POSTGRES_PASSWORD
@@ -20,6 +22,7 @@ services:
       - ./core/migrations:/app/core/migrations
     command: [python manage.py makemigrations]
   migrate:
+    # Command used to apply the migrations to the database
     image: rl-arena
     environment:
       - POSTGRES_PASSWORD
@@ -33,6 +36,7 @@ services:
       - DJANGO_SETTINGS_MODULE=core.settings
     command: [python manage.py migrate]
   web:
+    # Web service
     image: rl-arena
     restart: always
     environment:
@@ -47,6 +51,7 @@ services:
     volumes:
       - ./data/media:/app/data/media
   builder:
+    # Worker service that builds Docker images for the submissions
     image: rl-arena
     restart: always
     environment:
