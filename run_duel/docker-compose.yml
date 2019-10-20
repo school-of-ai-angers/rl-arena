@@ -1,0 +1,31 @@
+version: "2.4"
+services:
+  run_duel:
+    # Command to execute a duel
+    image: rl-arena
+    volumes:
+      - ../data/media:/app/data/media
+      # Allows to run docker from inside the container
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DUEL_IMAGE_1
+      - DUEL_IMAGE_2
+      - DUEL_ENVIRONMENT
+      - DUEL_OUTPUT_FILE
+      - DUEL_NAMESPACE
+    command: [python -m run_duel.main]
+    networks: [duel_1, duel_2]
+  player_1:
+    image: ${PLAYER_IMAGE:-}
+    cpus: ${PLAYER_CPU_LIMIT:-0}
+    mem_limit: ${PLAYER_MEMORY_LIMIT:-}
+    networks: [duel_1]
+  player_2:
+    image: ${PLAYER_IMAGE:-}
+    cpus: ${PLAYER_CPU_LIMIT:-0}
+    mem_limit: ${PLAYER_MEMORY_LIMIT:-}
+    networks: [duel_2]
+networks:
+  # Networks used to keep dueling players isolated
+  duel_1:
+  duel_2:
