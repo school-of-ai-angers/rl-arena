@@ -33,8 +33,13 @@
         <ul>
             <li>Started at {{ submission.test_started_at }}</li>
             <li>Ended at {{ submission.test_ended_at }}</li>
-            {% if fully_visible and test_logs %}
-                <li><a href="{% url 'submission_test_logs' submission.environment.slug submission.pk %}">Download test logs</a></li>
+            {% if fully_visible %}
+                {% if submission.test_error_msg %}
+                    <li>Error: {{ submission.test_error_msg }}</li>
+                {% endif %}
+                {% if submission.test_logs %}
+                    <li><a href="{% url 'submission_test_logs' submission.environment.slug submission.pk %}">Download test logs</a></li>
+                {% endif %}
             {% endif %}
         </ul>
     </li>
