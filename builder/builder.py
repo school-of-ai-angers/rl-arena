@@ -44,11 +44,11 @@ def build_submission(submission):
 
     # Call main builder logic
     print(f'Build zip {submission.zip_file.path}')
-    result = build(submission.zip_file.path)
+    image_tag = f'{submission.environment.slug}-{submission.submitter.pk}-{submission.revision}'
+    result = build(submission.zip_file.path, image_tag)
     print(f'Error = {result.error_msg}')
 
     # Save result
-    submission.ended_at = timezone.now()
     if result.ok:
         submission.image_name = result.name
         submission.state = Submission.WAITING_SMOKE_TEST

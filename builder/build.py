@@ -29,9 +29,10 @@ def _run_shell(cmd):
     return result.returncode, result.stdout.decode('utf-8')
 
 
-def build(zip_path):
+def build(zip_path, image_tag):
     """
     :param zip_path: str
+    :param image_tag: str
     :returns: BuildResult
     """
     try:
@@ -58,15 +59,11 @@ def build(zip_path):
                 shutil.copy2(image_file.path, tmpdir)
 
             # Build image
-            image_result, image_log = _run_shell(['docker', 'build', tmpdir])
+            image_name = f'rl-arena-player:{image_tag}'
+            image_result, image_log = _run_shell(
+                ['docker', 'build', '--tag', image_name, tmpdir])
             if image_result != 0:
                 return BuildResult.error('Image failed to be built', image_log)
-
-            # Extract image name
-            image_match = re.search(r'Successfully built (\w+)\s*$', image_log)
-            if image_match is None:
-                return BuildResult.error('Failed to read image name from build log', image_log)
-            image_name = image_match.group(1)
 
         return BuildResult.success(image_log, image_name)
     except:
