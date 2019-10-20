@@ -9,11 +9,25 @@ services:
       - ./data/${POSTGRES_DIR:-db}:/var/lib/postgresql/data
   web:
     image: rl-arena
+    restart: always
     environment:
       POSTGRES_HOST: db
       POSTGRES_NAME: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
+      DJANGO_SETTINGS_MODULE: web.settings
     ports:
       - 8000:8000
+    volumes:
+      - ./data/media:/app/data/media
+  builder:
+    image: rl-arena
     restart: always
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_NAME: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      DJANGO_SETTINGS_MODULE: builder.settings
+    volumes:
+      - ./data/media:/app/data/media

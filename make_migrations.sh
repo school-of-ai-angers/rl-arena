@@ -9,7 +9,7 @@ docker build --quiet --tag rl-arena .
 echo === Prepare database ===
 sudo rm -r "$DB_DIR" || true
 POSTGRES_DIR=make_migrations docker-compose --project-name "$NAMESPACE" up -d db
-sleep 30
+sleep 15
 
 echo === Run previous migration to bring DB up to date ===
 docker-compose --project-name "$NAMESPACE" run --rm -T web \
@@ -17,9 +17,9 @@ docker-compose --project-name "$NAMESPACE" run --rm -T web \
 
 echo === Create new migration ===
 docker-compose --project-name "$NAMESPACE" run --rm \
-    --volume "$PWD/rl_arena/migrations":/app/rl_arena/migrations web \
+    --volume "$PWD/core/migrations":/app/core/migrations web \
     "python manage.py makemigrations" || true
-sudo chown -R "$(id -u):$(id -g)" rl_arena/migrations
+sudo chown -R "$(id -u):$(id -g)" core/migrations
 
 echo === Tear down ===
 docker-compose --project-name "$NAMESPACE" down
