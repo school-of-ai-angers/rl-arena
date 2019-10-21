@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 from core.settings import *
 
 LOGOUT_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'profile'
 
 INSTALLED_APPS = [
     'core.apps.Config',

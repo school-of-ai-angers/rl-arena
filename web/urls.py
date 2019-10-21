@@ -24,6 +24,8 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('create_account/', views.create_account, name='create_account'),
     path('user/<username>/', views.user_home, name='user_home'),
+    path('profile/', views.profile, name='profile'),
+
 
     # Main app
     path('', views.home, name='home'),

@@ -1,6 +1,5 @@
 {% extends 'web/base.html' %}
-
-{% block user %}{% endblock user %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 {% if form.errors %}
@@ -17,15 +16,14 @@
 {% endif %}
 
 <form method="post" action="{% url 'login' %}">
-{% csrf_token %}
-<table>
-{{ form }}
-</table>
-
-<input type="submit" value="Login">
-<input type="hidden" name="next" value="{{ next }}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {{ form|crispy }}
+    <p>
+        <button type="submit" class="btn btn-primary">Login</button>
+        <a type="submit" class="btn btn-secondary" href="{% url 'create_account' %}">Create account</a>
+    </p>
 </form>
 
-<p><a href="{% url 'create_account' %}">Create account</a></p>
 <p>Lost password? Contact the site administrator</p>
 {% endblock content %}

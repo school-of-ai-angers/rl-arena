@@ -36,6 +36,11 @@ def create_account(request):
     })
 
 
+@login_required
+def profile(request):
+    return redirect('user_home', request.user.username)
+
+
 def user_home(request, username):
     user = get_object_or_404(User, username=username)
     return render(request, 'web/user_home.html', {

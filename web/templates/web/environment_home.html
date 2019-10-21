@@ -1,4 +1,5 @@
 {% extends 'web/base.html' %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 <h2>Environment {{ environment.name }}</h2>
@@ -8,11 +9,9 @@
 <h3>Submit your player</h3>
 {% if request.user.is_authenticated %}
     <form action="{% url 'new_submission' environment.slug %}" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <table>
-        {{ new_submission_form }}
-    </table>
-    <input type="submit" value="Upload">
+        {% csrf_token %}
+        {{ new_submission_form|crispy }}
+        <button type="submit" class="btn btn-primary">Upload</button>
     </form>
 {% else %}
     Please login before
