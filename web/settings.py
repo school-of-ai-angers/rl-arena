@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -79,3 +80,5 @@ STATICFILES_DIRS = [
      os.path.join(environment.path, 'static'))
     for environment in os.scandir('environments')
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'

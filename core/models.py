@@ -2,6 +2,7 @@ from django.db import models
 from core.settings import MEDIA_ROOT
 from django.core.validators import RegexValidator, FileExtensionValidator
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from markdown import markdown
 import unicodedata
 
@@ -47,9 +48,12 @@ class Environment(models.Model):
 class User(AbstractUser):
     """ A submitter """
     email = models.EmailField(
-        unique=True, help_text='Will not made public in any way and will not be used for communications')
+        unique=True, help_text='Your email address will not be made public and will not be used for communications. It will only be used as your authentication identifier.')
     # GitHub account
-    github = models.CharField(max_length=100, blank=True)
+    github = models.CharField(
+        max_length=100, blank=True,
+        validators=[UnicodeUsernameValidator],
+        help_text='Your GitHub username if you have one and want to link to it')
 
     # User email for login, since it is much easier to remember
     USERNAME_FIELD = 'email'
