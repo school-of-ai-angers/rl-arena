@@ -56,6 +56,7 @@ def environment_home(request, slug, new_submission_form=None):
     environment = get_object_or_404(Environment, slug=slug)
     return render(request, 'web/environment_home.html', {
         'environment': environment,
+        'active_environment_slug': slug,
         'new_submission_form': new_submission_form or NewSubmissionForm()
     })
 
@@ -88,6 +89,7 @@ def submission_home(request, slug, pk):
     submission = get_object_or_404(Submission, environment__slug=slug, pk=pk)
     return render(request, 'web/submission_home.html', {
         'submission': submission,
+        'active_environment_slug': slug,
         'fully_visible': submission.is_fully_visible_for(request.user)
     })
 

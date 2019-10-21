@@ -1,0 +1,22 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="{% url 'home' %}">RL Arena</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav mr-auto">
+      {% for env in environments %}
+        <a class="nav-item nav-link {% if env.slug == active_environment_slug %}active{% endif %}" href="{% url 'environment_home' env.slug %}">{{ env.name }}</a>
+      {% endfor %}
+    </div>
+    <span class="navbar-text">
+        {% if user.is_authenticated %}
+            Hello <a href="{% url 'user_home' user.username %}">{{ user.username }}</a>
+            <a href="{% url 'logout' %}" class="ml-2 btn btn-secondary">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}?next={{ request.path | urlencode }}" class="btn btn-primary">Login</a>
+            <a href="{% url 'create_account' %}" class="btn btn-secondary">Create an account</a></span>
+        {% endif %}
+  </div>
+</nav>
+</nav>
