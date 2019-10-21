@@ -1,10 +1,22 @@
 {% extends 'web/base.html' %}
-
+{% load static %}
 {% block content %}
-<h2>Available environments:</h2>
-<ul>
-    {% for environment in environments %}
-    <li><a href="{% url 'environment_home' environment.slug %}">{{ environment.name }}</a></li>
-    {% endfor %}
-</ul>
+<div class="jumbotron">
+    <h1 class="display-4">RL Arena</h1>
+    <p class="lead">{% lorem 20 w %}</p>
+    <hr class="my-4">
+    <p>{% lorem 1 b %}</p>
+
+    <div class="row">
+        {% for env in environments %}
+            <a class="card mx-2 btn" style="width: 18rem;" href="{% url 'environment_home' env.slug %}">
+                <img src="{% static env.image_static %}" class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">{{ env.name }}</h5>
+                    {{ env.num_competitors }} competitors
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</div>
 {% endblock content %}

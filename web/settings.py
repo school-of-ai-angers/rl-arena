@@ -73,3 +73,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    (f'environment-{environment.name}',
+     os.path.join(environment.path, 'static'))
+    for environment in os.scandir('environments')
+]

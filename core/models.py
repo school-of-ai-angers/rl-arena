@@ -23,6 +23,8 @@ class Environment(models.Model):
     num_matches_in_duel = models.PositiveIntegerField()
     memory_limit = models.CharField(max_length=50)
     cpu_limit = models.FloatField()
+    # The name of the image in the static folder
+    image = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
@@ -30,6 +32,16 @@ class Environment(models.Model):
     def description_html(self):
         """ Return the description in HTML text """
         return markdown(self.description)
+
+    @property
+    def num_competitors(self):
+        """ The number of users that submitted their players """
+        return self.submission_set.values('submitter').distinct().count()
+
+    @property
+    def image_static(self):
+        """ The static image file name """
+        return f'environment-{self.slug}/{self.image}'
 
 
 class User(AbstractUser):
