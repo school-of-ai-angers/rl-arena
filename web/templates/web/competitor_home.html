@@ -1,0 +1,67 @@
+{% extends 'web/base.html' %}
+
+{% block content %}
+<h1>{{ competitor.name }} <span class="badge badge-info">v{{ competitor.last_version }}</span></h1>
+
+<p><span class="text-muted">by <a href="{% url 'user_home' competitor.submitter.username %}">{{ competitor.submitter.username }}</a></p>
+
+<table class="table">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Version</th>
+            <th scope="col">Submission date</th>
+            <th scope="col">Source</th>
+            <th scope="col">Build status</th>
+            <th scope="col">Test status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for revision in revisions %}
+        <tr>
+            <th scope="row">v{{ revision.version_number }}</th>
+            <td>{{ revision.created_at }}</td>
+            <td>
+                {% if fully_visible %}
+                    <a href="{% url 'revision_source_download' active_environment_slug competitor.name revision.version_number %}">Download source as ZIP</a>
+                {% endif %}
+                <br>
+                {% if revision.publish_state == revision.PUBLISH_FAILED %}
+                    (failed to publish to GitHub)
+                {% elif revision.publish_state == revision.PUBLISH_COMPLETED %}
+                    <a href="{{ revision.github_source }}" target="_blank">View on GitHub</a>
+                {% elif revision.publish_state != revision.PUBLISH_SKIPPED %}
+                    (publishing to GitHub)
+                {% endif %}
+            </td>
+            <td>
+                {% if revision.image_state == revision.IMAGE_FAILED %}
+                    <span class="badge badge-danger">Failed</span>: {{ revision.image_error_msg }}
+                {% elif revision.image_state == revision.IMAGE_COMPLETED %}
+                    <span class="badge badge-success">Finished</span>
+                {% else %}
+                    <span class="badge badge-secondary">Pending</span>
+                {% endif %}
+                <br>
+                {% if fully_visible and revision.image_logs %}
+                    <a href="{% url 'revision_image_logs_download' active_environment_slug competitor.name revision.version_number %}">See logs</a>
+                {% endif %}
+            </td>
+            <td>
+                {% if revision.test_state == revision.TEST_FAILED %}
+                    <span class="badge badge-danger">Failed</span>: {{ revision.test_error_msg }}
+                {% elif revision.test_state == revision.TEST_COMPLETED %}
+                    <span class="badge badge-success">Finished</span>
+                {% else %}
+                    <span class="badge badge-secondary">Pending</span>
+                {% endif %}
+                <br>
+                {% if fully_visible and revision.test_logs %}
+                    <a href="{% url 'revision_test_logs_download' active_environment_slug competitor.name revision.version_number %}">See logs</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock content %}

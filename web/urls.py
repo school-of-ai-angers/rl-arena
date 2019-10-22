@@ -33,4 +33,12 @@ urlpatterns = [
          views.environment_home, name='environment_home'),
     path('environment/<env>/new_competitor',
          views.new_competitor, name='new_competitor'),
+    path('environment/<env>/competitor/<competitor>',
+         views.competitor_home, name='competitor_home'),
+    path('environment/<env>/competitor/<competitor>/revision/<int:revision>/download',
+         views.revision_source_download, name='revision_source_download'),
+    path('environment/<env>/competitor/<competitor>/revision/<int:revision>/image_logs',
+         views.revision_image_logs_download, name='revision_image_logs_download'),
+    path('environment/<env>/competitor/<competitor>/revision/<int:revision>/test_logs',
+         views.revision_test_logs_download, name='revision_test_logs_download'),
 ]

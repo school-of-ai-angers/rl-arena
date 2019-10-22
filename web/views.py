@@ -105,32 +105,31 @@ def new_competitor(request, env):
 
     return redirect('competitor_home', env.slug, competitor.name)
 
-    # Save and return
-    submission.save()
-    return redirect('submission_home', slug, submission.pk)
 
-
-def submission_home(request, slug, pk):
-    submission = get_object_or_404(Submission, environment__slug=slug, pk=pk)
-    return render(request, 'web/submission_home.html', {
-        'submission': submission,
-        'active_environment_slug': slug,
-        'fully_visible': submission.is_fully_visible_for(request.user)
+def competitor_home(request, env, competitor):
+    competitor = get_object_or_404(
+        Competitor, environment__slug=env, name=competitor)
+    return render(request, 'web/competitor_home.html', {
+        'competitor': competitor,
+        'active_environment_slug': env,
+        'fully_visible': competitor.is_fully_visible_for(request.user),
+        'revisions': competitor.revision_set.order_by('version_number').all()
     })
 
 
-def _get_fully_visible_submission(request, env_slug, submission_pk):
+def _get_fully_visible_revision(request, env, competitor, revision):
     """
     :param request:
-    :param env_slug: str
-    :param submission_pk: int
-    :returns: Submission
+    :param env: str
+    :param competitor: str
+    :param revision: int
+    :returns: Revision
     """
-    submission = get_object_or_404(
-        Submission, environment__slug=env_slug, pk=submission_pk)
-    if not submission.is_fully_visible_for(request.user):
+    competitor = get_object_or_404(
+        Competitor, environment__slug=env, name=competitor)
+    if not competitor.is_fully_visible_for(request.user):
         raise PermissionDenied()
-    return submission
+    return get_object_or_404(Revision, competitor=competitor, version_number=revision)
 
 
 def _serve_file(file_path, download_name, content_type):
@@ -146,20 +145,20 @@ def _serve_file(file_path, download_name, content_type):
     return response
 
 
-def submission_download(request, slug, pk):
-    submission = _get_fully_visible_submission(request, slug, pk)
-    return _serve_file(submission.zip_file.path, 'submission.zip', 'application/zip')
+def revision_source_download(request, env, competitor, revision):
+    revision = _get_fully_visible_revision(request, env, competitor, revision)
+    return _serve_file(revision.zip_file.path, 'revision.zip', 'application/zip')
 
 
-def submission_image_logs(request, slug, pk):
-    submission = _get_fully_visible_submission(request, slug, pk)
-    if submission.image_logs is None:
+def revision_image_logs_download(request, env, competitor, revision):
+    revision = _get_fully_visible_revision(request, env, competitor, revision)
+    if revision.image_logs is None:
         raise Http404()
-    return _serve_file(submission.image_logs, 'image.log', 'application/text')
+    return _serve_file(revision.image_logs, 'image.log', 'application/text')
 
 
-def submission_test_logs(request, slug, pk):
-    submission = _get_fully_visible_submission(request, slug, pk)
-    if submission.test_logs is None:
+def revision_test_logs_download(request, env, competitor, revision):
+    revision = _get_fully_visible_revision(request, env, competitor, revision)
+    if revision.test_logs is None:
         raise Http404()
-    return _serve_file(submission.test_logs, 'test.log', 'application/text')
+    return _serve_file(revision.test_logs, 'test.log', 'application/text')
