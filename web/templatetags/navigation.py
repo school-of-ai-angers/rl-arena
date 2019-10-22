@@ -15,6 +15,7 @@ def navigation(context):
     """
     envs = Environment.objects.all().order_by('name').values('name', 'slug')
     return {
+        'full_path': context['request'].get_full_path,
         'environments': envs,
         'user': context['request'].user,
         'active_environment_slug': context.get('active_environment_slug')
