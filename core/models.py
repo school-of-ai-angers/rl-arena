@@ -4,7 +4,7 @@ from django.core.validators import RegexValidator, FileExtensionValidator
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from markdown import markdown
-import unicodedata
+import uuid
 
 
 def _choices_with(values):
@@ -83,6 +83,10 @@ class Competitor(models.Model):
         return self.is_public or user.is_superuser or self.submitter == user
 
 
+def zip_file_path(instance, filename):
+    return f'revisions/{uuid.uuid4()}.zip'
+
+
 class Revision(models.Model):
     """ Represents each submitted code, as part of a competitor lineage """
     # The competitor family (PROTECT because this entity has external persistent state)
@@ -93,7 +97,7 @@ class Revision(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     # The ZIPped source
     zip_file = models.FileField(
-        upload_to='revisions/', validators=[FileExtensionValidator(['zip'])])
+        upload_to=zip_file_path, validators=[FileExtensionValidator(['zip'])])
 
     # Source publishing state
     PUBLISH_SCHEDULED = 'PUBLISH_SCHEDULED'
