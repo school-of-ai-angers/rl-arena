@@ -36,8 +36,13 @@ class Environment(models.Model):
 
     @property
     def num_competitors(self):
+        """ The number of competitors """
+        return self.competitor_set.count()
+
+    @property
+    def num_submitters(self):
         """ The number of users that submitted their players """
-        return self.submission_set.values('submitter').distinct().count()
+        return self.competitor_set.values('submitter').distinct().count()
 
     @property
     def image_static(self):
@@ -60,52 +65,64 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username']
 
 
-class Submission(models.Model):
-    """ Represents each submitted code """
-    # The user who sent this entry (PROTECT because this entity has external persistent state)
-    submitter = models.ForeignKey(User, models.PROTECT)
+class Competitor(models.Model):
+    """ Represents a linear of players submitted by an user """
+    # The user who sent this entry
+    submitter = models.ForeignKey(User, models.CASCADE)
     # The target environment
-    environment = models.ForeignKey(Environment, models.PROTECT)
-    # How many submissions where made before this one by this user for this
-    # environment (starts at 1)
-    revision = models.PositiveIntegerField()
+    environment = models.ForeignKey(Environment, models.CASCADE)
+    # Whether the source is public
+    is_public = models.BooleanField()
+    # The display and URL name
+    name = models.SlugField()
+    # The number of the last version
+    last_version = models.PositiveIntegerField()
+
+    def is_fully_visible_for(self, user):
+        """ Determines whether all information about this submission is accessible by the given user """
+        return self.is_public or user.is_superuser or self.submitter == user
+
+
+class Revision(models.Model):
+    """ Represents each submitted code, as part of a competitor lineage """
+    # The competitor family (PROTECT because this entity has external persistent state)
+    competitor = models.ForeignKey(Competitor, models.PROTECT)
+    # The submission counter for this competitor (starts at 1)
+    version_number = models.PositiveIntegerField()
     # The date of submission
     created_at = models.DateTimeField(auto_now_add=True)
     # The ZIPped source
     zip_file = models.FileField(
-        upload_to='submissions/', validators=[FileExtensionValidator(['zip'])])
-    # Link to GitHub sources
+        upload_to='revisions/', validators=[FileExtensionValidator(['zip'])])
+
+    # Source publishing state
+    PUBLISH_SCHEDULED = 'PUBLISH_SCHEDULED'
+    PUBLISH_RUNNING = 'PUBLISH_RUNNING'
+    PUBLISH_FAILED = 'PUBLISH_FAILED'
+    PUBLISH_COMPLETED = 'PUBLISH_COMPLETED'
+    # Will not publish a private competitor
+    PUBLISH_SKIPPED = 'PUBLISH_SKIPPED'
+    publish_state = models.CharField(max_length=100, choices=_choices_with([
+        PUBLISH_SKIPPED,
+        PUBLISH_SCHEDULED,
+        PUBLISH_RUNNING,
+        PUBLISH_FAILED,
+        PUBLISH_COMPLETED]))
+
+    # Link to GitHub sources (only present for public source code)
     github_source = models.CharField(max_length=200, blank=True, validators=[RegexValidator(
         r'^https://github.com/[^/]+/[^/]+/tree/[^/]+$')])
-    # Whether the source is public
-    is_public = models.BooleanField()
 
-    # Current state
-    # Code was submitted. Waiting to build
-    WAITING_BUILD = 'WAITING_BUILD'
-    # Image build is running
-    BUILDING = 'BUILDING'
-    # Failed to build a Docker image for it
-    BUILD_FAILED = 'BUILD_FAILED'
-    # Image was built. Waiting for smoke test
-    WAITING_SMOKE_TEST = 'WAITING_SMOKE_TEST'
-    # Smoke testing is running
-    TESTING = 'TESTING'
-    # Smoke test failed
-    FAILED_SMOKE_TEST = 'FAILED_SMOKE_TEST'
-    # Everything seems ready
-    READY = 'READY'
-    state = models.CharField(max_length=100, choices=_choices_with([
-        WAITING_BUILD,
-        BUILDING,
-        BUILD_FAILED,
-        WAITING_SMOKE_TEST,
-        TESTING,
-        FAILED_SMOKE_TEST,
-        READY,
-    ]), default=WAITING_BUILD)
-
-    # Docker image data
+    # Docker image building state
+    IMAGE_SCHEDULED = 'IMAGE_SCHEDULED'
+    IMAGE_RUNNING = 'IMAGE_RUNNING'
+    IMAGE_FAILED = 'IMAGE_FAILED'
+    IMAGE_COMPLETED = 'IMAGE_COMPLETED'
+    image_state = models.CharField(max_length=100, choices=_choices_with([
+        IMAGE_SCHEDULED,
+        IMAGE_RUNNING,
+        IMAGE_FAILED,
+        IMAGE_COMPLETED]), default=IMAGE_SCHEDULED)
 
     # When the build process started and ended
     image_started_at = models.DateTimeField(null=True)
@@ -116,9 +133,18 @@ class Submission(models.Model):
     image_name = models.CharField(blank=True, max_length=200)
     # Docker build logs
     image_logs = models.FilePathField(
-        null=True, path=MEDIA_ROOT+'submission_image_logs/')
+        null=True, path=MEDIA_ROOT+'revision_image_logs/')
 
-    # Smoke test data
+    # Smoke testing state
+    TEST_SCHEDULED = 'TEST_SCHEDULED'
+    TEST_RUNNING = 'TEST_RUNNING'
+    TEST_FAILED = 'TEST_FAILED'
+    TEST_COMPLETED = 'TEST_COMPLETED'
+    test_state = models.CharField(max_length=100, choices=_choices_with([
+        TEST_SCHEDULED,
+        TEST_RUNNING,
+        TEST_FAILED,
+        TEST_COMPLETED]), default=TEST_SCHEDULED)
 
     # When the smoke test process started and ended
     test_started_at = models.DateTimeField(null=True)
@@ -127,17 +153,13 @@ class Submission(models.Model):
     test_error_msg = models.CharField(blank=True, max_length=200)
     # Smoke test logs
     test_logs = models.FilePathField(
-        null=True, path=MEDIA_ROOT+'submission_test_logs/')
-
-    def is_fully_visible_for(self, user):
-        """ Determines whether all information about this submission is accessible by the given user """
-        return self.is_public or user.is_superuser or self.submitter == user
+        null=True, path=MEDIA_ROOT+'revision_test_logs/')
 
 
-class TournamentSubmission(models.Model):
-    """ Represent a submission participation on a tournament """
+class TournamentParticipant(models.Model):
+    """ Represent a participation on a tournament """
     tournament = models.ForeignKey('Tournament', models.CASCADE)
-    submission = models.ForeignKey('Submission', models.CASCADE)
+    revision = models.ForeignKey(Revision, models.CASCADE)
     # Number of duels that were won, lost or tied
     wins = models.PositiveIntegerField()
     losses = models.PositiveIntegerField()
@@ -147,7 +169,7 @@ class TournamentSubmission(models.Model):
     # The sum of all duels' scores
     total_score = models.FloatField()
     # The ranking of this submission, starting from 1.
-    # Submissions are ranked by (points, wins, total_score)
+    # Revisions are ranked by (points, wins, total_score)
     # In the case of a drawn, tied submissions will have the same ranking, skipping
     # the next ones. For example, if first place is tied: 1, 1, 3
     ranking = models.PositiveIntegerField()
@@ -156,15 +178,15 @@ class TournamentSubmission(models.Model):
 class Tournament(models.Model):
     """
     Represent tournaments composed of multiples matches between
-    ready submissions for a given environment
+    ready revisions for a given environment
     """
+    # The scope of the competition
     environment = models.ForeignKey(Environment, models.CASCADE)
-    # A sequential counter for the number of tournaments for this environment
-    # (starting at 1)
+    # Who participates and their performance
+    participants = models.ManyToManyField(
+        Revision, through=TournamentParticipant)
+    # A sequential counter for the number of tournaments for this environment (starting at 1)
     edition = models.PositiveIntegerField()
-    # The duels inside a tournament are played in rounds, so that during the tournament
-    # the number of duels played per submission increases in lock-step. (starts at 1)
-    current_round = models.PositiveIntegerField()
     started_at = models.DateTimeField(auto_now_add=True)
 
     # States
@@ -177,15 +199,13 @@ class Tournament(models.Model):
         COMPLETED]), default=RUNNING)
 
     ended_at = models.DateTimeField(null=True)
-    submissions = models.ManyToManyField(
-        Submission, through=TournamentSubmission)
 
 
-class DuelSubmission(models.Model):
-    """ Represent a submission participation on a duel """
+class DuelParticipant(models.Model):
+    """ Represent a player participation on a duel """
     duel = models.ForeignKey('Duel', models.CASCADE)
-    submission = models.ForeignKey('Submission', models.CASCADE)
-    # The submission performace one-hot encoded, that is, after the duel is finished
+    revision = models.ForeignKey(Revision, models.CASCADE)
+    # The player performace one-hot encoded, that is, after the duel is finished
     # exactly one of win, loss, draw will be 1
     win = models.PositiveIntegerField()
     loss = models.PositiveIntegerField()
@@ -195,14 +215,11 @@ class DuelSubmission(models.Model):
 
 
 class Duel(models.Model):
-    """ Represent multiple matches between two submissions. """
-    tournament = models.ForeignKey(Tournament, models.CASCADE)
-    # See definition of `round` in Tournament
-    round = models.PositiveIntegerField()
+    """ Represent multiple matches between two players of the same tournament """
     # How many matches will be played in this duel
     num_matches = models.PositiveIntegerField()
-    # The two participating submissions and their performance
-    submissions = models.ManyToManyField(Submission, through=DuelSubmission)
+    # The two participating players and their performance
+    participants = models.ManyToManyField(Revision, through=DuelParticipant)
 
     # States
     SCHEDULED = 'SCHEDULED'
