@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from core.models import User, Submission
+from core.models import User, Revision
 from django.core.exceptions import ValidationError
 import os
+from django.core.validators import FileExtensionValidator
 
 expected_invitation_code = os.environ['INVITATION_CODE']
 
@@ -24,7 +25,16 @@ class CreateAccountForm(UserCreationForm):
                   'password2', 'username', 'github')
 
 
-class NewSubmissionForm(forms.ModelForm):
+class NewCompetitorForm(forms.Form):
+    name = forms.SlugField(help_text='A nice nickname for your competitor')
+    zip_file = forms.FileField(
+        label='Source code (as a .zip file)', validators=[
+            FileExtensionValidator(['zip'])])
+    is_public = forms.BooleanField(
+        label='Make public', help_text='I want to share my source code openly with the community', required=False)
+
+
+class NewRevisionForm(forms.ModelForm):
     class Meta:
-        model = Submission
-        fields = ('zip_file', 'github_source', 'is_public')
+        model = Revision
+        fields = ('zip_file',)

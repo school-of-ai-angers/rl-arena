@@ -2,19 +2,48 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<h2>Environment {{ environment.name }}</h2>
+<h1>{{ environment.name }}</h1>
 
-<div>{{ environment.description_html | safe }}</div>
 
-<h3>Submit your player</h3>
-{% if request.user.is_authenticated %}
-    <form action="{% url 'new_submission' environment.slug %}" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ new_submission_form|crispy }}
-        <button type="submit" class="btn btn-primary">Upload</button>
-    </form>
-{% else %}
-    Please login before
-{% endif %}
+<div class="my-2 bg-light p-3">
+    {{ environment.description_html | safe }}
+    <p>See the <a href="https://github.com/school-of-ai-angers/rl-arena/blob/master/environments/{{ environment.slug }}/environment.py" target="_blank">Python source</a> of this environment</p>
+</div>
+
+<div class="row my-2">
+    {% if request.user.is_authenticated %}
+        <div class="col-sm-4">
+            <h2>Submit a new player</h2>
+            <form action="{% url 'new_competitor' environment.slug %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ new_competitor_form|crispy }}
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+        </div>
+        <div class="col">
+            <h2>Your players</h2>
+            {% if user_competitors %}
+                <ul class="list-group">
+                    {% for competitor in user_competitors %}
+                        <li class="list-group-item"><a href="{% url 'competitor_home' environment.slug competitor.name %}">{{ competitor.name }} - <span class="badge badge-info">v{{ competitor.last_version }}</span></a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                You don't have any. Yet!
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="col">
+            <h2>Submit your player</h2>
+            Please login to be able to submit your player
+        </div>
+    {% endif %}
+</div>
+
+<div class="row my-2">
+    <div class="col">
+        <h2>Tournaments</h2>
+    </div>
+</div>
 
 {% endblock content %}

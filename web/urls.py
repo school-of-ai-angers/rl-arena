@@ -29,16 +29,8 @@ urlpatterns = [
 
     # Main app
     path('', views.home, name='home'),
-    path('environment/<slug>/',
+    path('environment/<env>/',
          views.environment_home, name='environment_home'),
-    path('environment/<slug>/submission/new',
-         views.new_submission, name='new_submission'),
-    path('environment/<slug>/submission/<int:pk>',
-         views.submission_home, name='submission_home'),
-    path('environment/<slug>/submission/<int:pk>/download',
-         views.submission_download, name='submission_download'),
-    path('environment/<slug>/submission/<int:pk>/image_logs',
-         views.submission_image_logs, name='submission_image_logs'),
-    path('environment/<slug>/submission/<int:pk>/test_logs',
-         views.submission_test_logs, name='submission_test_logs'),
+    path('environment/<env>/new_competitor',
+         views.new_competitor, name='new_competitor'),
 ]

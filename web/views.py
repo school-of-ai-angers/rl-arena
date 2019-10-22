@@ -2,14 +2,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, Http404, HttpResponseBadRequest, HttpResponseForbidden
 from django.template import loader
 from django.urls import reverse
-from core.models import Environment, User, Submission
+from core.models import Environment, User, Competitor, Revision
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import redirect_to_login
-from .forms import CreateAccountForm, NewSubmissionForm
+from .forms import CreateAccountForm, NewRevisionForm, NewCompetitorForm
 from wsgiref.util import FileWrapper
 from django.core.exceptions import PermissionDenied
+from django.contrib import messages
 import os
 
 # Accounts
@@ -57,33 +58,52 @@ def home(request):
     })
 
 
-def environment_home(request, slug, new_submission_form=None):
-    environment = get_object_or_404(Environment, slug=slug)
+def environment_home(request, env, new_competitor_form=None):
+    environment = get_object_or_404(Environment, slug=env)
+    if request.user.is_authenticated:
+        user_competitors = environment.competitor_set.filter(
+            submitter=request.user).order_by('name').all()
+    else:
+        user_competitors = []
     return render(request, 'web/environment_home.html', {
         'environment': environment,
-        'active_environment_slug': slug,
-        'new_submission_form': new_submission_form or NewSubmissionForm()
+        'active_environment_slug': env,
+        'new_competitor_form': new_competitor_form or NewCompetitorForm(),
+        'user_competitors': user_competitors
     })
 
 
 @login_required
-def new_submission(request, slug):
+def new_competitor(request, env):
     if request.method != 'POST':
         return HttpResponseBadRequest()
 
-    env = get_object_or_404(Environment, slug=slug)
+    env = get_object_or_404(Environment, slug=env)
 
-    form = NewSubmissionForm(request.POST, request.FILES)
+    form = NewCompetitorForm(request.POST, request.FILES)
     if not form.is_valid():
-        return environment_home(request, slug, form)
+        messages.error(
+            request, 'Failed to submit form, please check error messages')
+        return environment_home(request, env, form)
 
-    # Prepare the object
+    # Prepare the new objects
+    form_data = form.cleaned_data
+    competitor = Competitor.objects.create(
+        submitter=request.user,
+        environment=env,
+        is_public=form_data['is_public'],
+        name=form_data['name'],
+        last_version=1
+    )
+    revision = Revision.objects.create(
+        competitor=competitor,
+        version_number=1,
+        zip_file=form_data['zip_file'],
+        publish_state=Revision.PUBLISH_SCHEDULED if form_data[
+            'is_public'] else Revision.PUBLISH_SKIPPED
+    )
 
-    submission = form.save(commit=False)
-    submission.submitter = request.user
-    submission.environment = env
-    submission.revision = Submission.objects.filter(
-        submitter=request.user, environment=env).count() + 1
+    return redirect('competitor_home', env.slug, competitor.name)
 
     # Save and return
     submission.save()
