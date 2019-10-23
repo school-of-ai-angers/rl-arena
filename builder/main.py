@@ -1,7 +1,8 @@
 # Setup logs
 import django
 import logging
-logging.basicConfig()
+import os
+logging.basicConfig(level=os.environ['LOG_LEVEL'])
 logger = logging.getLogger(__name__)
 
 # Start Django in stand-alone mode
