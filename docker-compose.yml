@@ -69,3 +69,23 @@ services:
       # Allows to run docker from inside the container
       - /var/run/docker.sock:/var/run/docker.sock
     command: [-m, builder.main]
+  publisher:
+    # Worker service that publish to GitHub the public competitors
+    image: rl-arena
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD
+      - DJANGO_SECRET_KEY
+      - PUBLISHER_REMOTE
+      - PUBLISHER_WEB_URL
+      - POSTGRES_HOST=db
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - DJANGO_SETTINGS_MODULE=publisher.settings
+      - LOG_LEVEL=INFO
+      - GIT_SSH_COMMAND=ssh -i /app/data/publish_keys/id_rsa
+    volumes:
+      - ./data/media:/app/data/media
+      - ./data/publish_repo:/app/data/publish_repo
+      - ./data/publish_keys:/app/data/publish_keys
+    command: [-m, publisher.main]

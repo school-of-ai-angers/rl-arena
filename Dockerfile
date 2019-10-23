@@ -9,6 +9,9 @@ RUN apt-get -q update && \
     apt-get -q update && \
     apt-get -q install -y docker-ce docker-ce-cli containerd.io
 
+# Save the public key for GitHub
+RUN mkdir ~/.ssh && ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+
 WORKDIR /app
 
 # Conda dependencies

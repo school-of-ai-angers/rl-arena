@@ -19,6 +19,11 @@ data
 3. Copy `example.env` as `.env` and edit it
 4. Run `./prepare_dev.sh`
 
+## Prepare publish repo
+
+1. `mkdir -p data/publish_keys`
+2. `ssh-keygen -f data/publish_keys/id_rsa`
+
 ## Environments
 
 An environment is an implementation of a two-player game. This repo contains implementations for:
