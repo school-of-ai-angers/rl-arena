@@ -82,6 +82,12 @@ class Competitor(models.Model):
         """ Determines whether all information about this submission is accessible by the given user """
         return self.is_public or user.is_superuser or self.submitter == user
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['environment', 'name'], name='unique_environment')
+        ]
+
 
 def zip_file_path(instance, filename):
     return f'revisions/{uuid.uuid4()}.zip'
@@ -113,9 +119,14 @@ class Revision(models.Model):
         PUBLISH_FAILED,
         PUBLISH_COMPLETED]))
 
+    # When the publish process started and ended
+    publish_started_at = models.DateTimeField(null=True)
+    publish_ended_at = models.DateTimeField(null=True)
+    # Main reason for the failed publish
+    publish_error_msg = models.CharField(blank=True, max_length=200)
     # Link to GitHub sources (only present for public source code)
-    github_source = models.CharField(max_length=200, blank=True, validators=[RegexValidator(
-        r'^https://github.com/[^/]+/[^/]+/tree/[^/]+$')])
+    publish_url = models.CharField(max_length=200, blank=True, validators=[RegexValidator(
+        r'^https://github.com/')])
 
     # Docker image building state
     IMAGE_SCHEDULED = 'IMAGE_SCHEDULED'
@@ -158,6 +169,12 @@ class Revision(models.Model):
     # Smoke test logs
     test_logs = models.FilePathField(
         null=True, path=MEDIA_ROOT+'revision_test_logs/')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['competitor', 'version_number'], name='unique_competitor')
+        ]
 
 
 class TournamentParticipant(models.Model):

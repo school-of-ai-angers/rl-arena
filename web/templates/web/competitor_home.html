@@ -28,7 +28,7 @@
                 {% if revision.publish_state == revision.PUBLISH_FAILED %}
                     (failed to publish to GitHub)
                 {% elif revision.publish_state == revision.PUBLISH_COMPLETED %}
-                    <a href="{{ revision.github_source }}" target="_blank">View on GitHub</a>
+                    <a href="{{ revision.publish_url }}" target="_blank">View on GitHub</a>
                 {% elif revision.publish_state != revision.PUBLISH_SKIPPED %}
                     (publishing to GitHub)
                 {% endif %}

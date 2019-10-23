@@ -84,7 +84,7 @@ def new_competitor(request, env):
     if not form.is_valid():
         messages.error(
             request, 'Failed to submit form, please check error messages')
-        return environment_home(request, env, form)
+        return environment_home(request, env.slug, form)
 
     # Prepare the new objects
     form_data = form.cleaned_data
