@@ -89,3 +89,21 @@ services:
       - ./data/publish_repo:/app/data/publish_repo
       - ./data/publish_keys:/app/data/publish_keys
     command: [-m, publisher.main]
+  smoke_tester:
+    # Worker service that test recently-built Docker images for the submissions
+    image: rl-arena
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD
+      - DJANGO_SECRET_KEY
+      - HOST_CWD
+      - POSTGRES_HOST=db
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - DJANGO_SETTINGS_MODULE=smoke_tester.settings
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./data/media:/app/data/media
+      # Allows to run docker from inside the container
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: [-m, smoke_tester.main]
