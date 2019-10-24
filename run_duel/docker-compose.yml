@@ -4,7 +4,12 @@ services:
     # Command to execute a duel
     image: rl-arena
     volumes:
-      - ../data/media:/app/data/media
+      # Weird hack alert: we will start a docker from inside a docker here
+      # This means that:
+      # 1. the mount path will be resolved by docker-compose inside the container
+      # 2. the mount will be created by docker on the host machine
+      # That's why we need to carry the host working directory around
+      - $HOST_CWD/data/media:/app/data/media
       # Allows to run docker from inside the container
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -13,7 +18,8 @@ services:
       - DUEL_ENVIRONMENT
       - DUEL_OUTPUT_FILE
       - DUEL_NAMESPACE
-    command: [python -m run_duel.main]
+      - LOG_LEVEL=INFO
+    command: [-m, run_duel.main]
     networks: [duel_1, duel_2]
   player_1:
     image: ${PLAYER_IMAGE:-}
