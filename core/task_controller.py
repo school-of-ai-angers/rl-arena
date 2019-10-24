@@ -110,7 +110,7 @@ class TaskController:
                     setattr(task, f'{self.fields_prefix}_state',
                             self.failed_state)
                     setattr(
-                        task, f'{self.fields_prefix}_error_msg', result.error_msg)
+                        task, f'{self.fields_prefix}_error_msg', result.error_msg[:200])
                 setattr(task, f'{self.fields_prefix}_logs',
                         self.create_log_file(result.task_log))
                 setattr(task, f'{self.fields_prefix}_ended_at', timezone.now())
