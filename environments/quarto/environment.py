@@ -87,3 +87,24 @@ class Environment:
         self.action_space = [
             16 * pos + piece for pos in self.available_positions for piece in self.available_pieces]
         return self.board_state, 0, done, self.action_space
+
+    def to_jsonable(self):
+        """
+        Return a representation of the current state that can be encoded as JSON.
+        This will be used later to visually display the game state at each step
+        """
+        return self.board_state.tolist()
+
+    @staticmethod
+    def html_head():
+        """
+        Return HTML string to inject at the page's <head>
+        """
+        return '<link rel="stylesheet" href="/static/environment-quarto/style.css">'
+
+    @staticmethod
+    def jsonable_to_html(jsonable):
+        """
+        Return a HTML representation of the game at the given state
+        """
+        return 'TODO'
