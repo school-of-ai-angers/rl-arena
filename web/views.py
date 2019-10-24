@@ -58,62 +58,81 @@ def home(request):
     })
 
 
-def environment_home(request, env, new_competitor_form=None):
+def environment_home(request, env):
     environment = get_object_or_404(Environment, slug=env)
+
+    if request.method == 'POST' and request.user.is_authenticated:
+        # Handle new competitor submission
+        form = NewCompetitorForm(request.POST, request.FILES)
+        if not form.is_valid():
+            messages.error(
+                request, 'Failed to submit form, please check error messages')
+        else:
+            # Prepare the new objects
+            form_data = form.cleaned_data
+            competitor = Competitor.objects.create(
+                submitter=request.user,
+                environment=environment,
+                is_public=form_data['is_public'],
+                name=form_data['name'],
+                last_version=1
+            )
+            revision = Revision.objects.create(
+                competitor=competitor,
+                version_number=1,
+                zip_file=form_data['zip_file'],
+                publish_state=Revision.PUBLISH_SCHEDULED if form_data[
+                    'is_public'] else Revision.PUBLISH_SKIPPED
+            )
+            return redirect('competitor_home', environment.slug, competitor.name)
+    else:
+        form = NewCompetitorForm()
+
+    # List user competitors
     if request.user.is_authenticated:
         user_competitors = environment.competitor_set.filter(
             submitter=request.user).order_by('name').all()
     else:
         user_competitors = []
+
     return render(request, 'web/environment_home.html', {
         'environment': environment,
         'active_environment_slug': env,
-        'new_competitor_form': new_competitor_form or NewCompetitorForm(),
+        'new_competitor_form': form,
         'user_competitors': user_competitors
     })
-
-
-@login_required
-def new_competitor(request, env):
-    if request.method != 'POST':
-        return HttpResponseBadRequest()
-
-    env = get_object_or_404(Environment, slug=env)
-
-    form = NewCompetitorForm(request.POST, request.FILES)
-    if not form.is_valid():
-        messages.error(
-            request, 'Failed to submit form, please check error messages')
-        return environment_home(request, env.slug, form)
-
-    # Prepare the new objects
-    form_data = form.cleaned_data
-    competitor = Competitor.objects.create(
-        submitter=request.user,
-        environment=env,
-        is_public=form_data['is_public'],
-        name=form_data['name'],
-        last_version=1
-    )
-    revision = Revision.objects.create(
-        competitor=competitor,
-        version_number=1,
-        zip_file=form_data['zip_file'],
-        publish_state=Revision.PUBLISH_SCHEDULED if form_data[
-            'is_public'] else Revision.PUBLISH_SKIPPED
-    )
-
-    return redirect('competitor_home', env.slug, competitor.name)
 
 
 def competitor_home(request, env, competitor):
     competitor = get_object_or_404(
         Competitor, environment__slug=env, name=competitor)
+
+    if request.method == 'POST' and request.user.is_authenticated and competitor.submitter == request.user:
+        # Handle new revision submission
+        form = NewRevisionForm(request.POST, request.FILES)
+        if not form.is_valid():
+            messages.error(
+                request, 'Failed to submit form, please check error messages')
+        else:
+            # Prepare the new object
+            form_data = form.cleaned_data
+            competitor.last_version += 1
+            competitor.save()
+            revision = Revision.objects.create(
+                competitor=competitor,
+                version_number=competitor.last_version,
+                zip_file=form_data['zip_file'],
+                publish_state=Revision.PUBLISH_SCHEDULED if competitor.is_public else Revision.PUBLISH_SKIPPED
+            )
+    else:
+        form = NewRevisionForm()
+
     return render(request, 'web/competitor_home.html', {
         'competitor': competitor,
         'active_environment_slug': env,
         'fully_visible': competitor.is_fully_visible_for(request.user),
-        'revisions': competitor.revision_set.order_by('version_number').all()
+        'revisions': competitor.revision_set.order_by('version_number').all(),
+        'new_revision_form': form
     })
 
 

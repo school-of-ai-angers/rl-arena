@@ -34,7 +34,7 @@ class NewCompetitorForm(forms.Form):
         label='Make public', help_text='I want to share my source code openly with the community', required=False)
 
 
-class NewRevisionForm(forms.ModelForm):
-    class Meta:
-        model = Revision
-        fields = ('zip_file',)
+class NewRevisionForm(forms.Form):
+    zip_file = forms.FileField(
+        label='Source code (as a .zip file)', validators=[
+            FileExtensionValidator(['zip'])])

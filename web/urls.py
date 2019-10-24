@@ -31,8 +31,6 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('environment/<env>/',
          views.environment_home, name='environment_home'),
-    path('environment/<env>/new_competitor',
-         views.new_competitor, name='new_competitor'),
     path('environment/<env>/competitor/<competitor>',
          views.competitor_home, name='competitor_home'),
     path('environment/<env>/competitor/<competitor>/revision/<int:revision>/download',
