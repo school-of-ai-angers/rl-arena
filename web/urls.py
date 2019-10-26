@@ -37,6 +37,10 @@ urlpatterns = [
          views.environment_home, name='environment_home_with_tournament'),
     path('environment/<env>/tournament/<int:tournament>/competitor/<competitor>',
          views.tournament_participant, name='tournament_participant'),
+    path('environment/<environment>/tournament/<int:tournament>/duel/<competitor_1>/<competitor_2>',
+         views.duel_home, name='duel_home'),
+    path('environment/<environment>/tournament/<int:tournament>/duel/<competitor_1>/<competitor_2>/<int:match>',
+         views.duel_home, name='match_home'),
 
     # File downloads
     path('environment/<env>/competitor/<competitor>/revision/<int:revision>/download',
@@ -47,4 +51,6 @@ urlpatterns = [
          views.revision_test_logs_download, name='revision_test_logs_download'),
     path('duel/<int:duel_id>/logs',
          views.duel_logs_download, name='duel_logs_download'),
+    path('duel/<int:duel_id>/results',
+         views.duel_results_download, name='duel_results_download'),
 ]

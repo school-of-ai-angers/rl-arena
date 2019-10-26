@@ -1,0 +1,127 @@
+{% extends 'web/base.html' %}
+
+{% block extra_head %}
+    {{ extra_head|safe }}
+{% endblock extra_head %}
+
+{% block content %}
+<h1>Matches details</h1>
+
+<ul>
+    <li>
+        <span class="font-weight-bold">Player 1</span>:
+        <a href="{{ duel.participant_1.get_absolute_url }}">{{ duel.player_1.competitor.name }} - <span class="badge badge-info">v{{ duel.player_1.version_number }}</span></a>
+    </li>
+    <li>
+        <span class="font-weight-bold">Player 2</span>:
+        <a href="{{ duel.participant_2.get_absolute_url }}">{{ duel.player_2.competitor.name }} - <span class="badge badge-info">v{{ duel.player_2.version_number }}</span></a>
+    </li>
+    <li>
+        <span class="font-weight-bold">Tournament</span>: <a href="{{ duel.tournament.get_absolute_url }}">Edition {{ duel.tournament.edition }}</a>
+    </li>
+    <li><span class="font-weight-bold">Number of matches</span>: {{ duel.num_matches }}</li>
+    <li>
+        <span class="font-weight-bold">Player 1 errors</span>: {{ duel.player_1_errors }}
+        {% if links_by_result.PLAYER_1_ERROR %}
+            <select onchange="window.location = this.value">
+                <option disabled selected>Inspect a match</option>
+                {% for i, url in links_by_result.PLAYER_1_ERROR %}
+                    <option value="{{ url }}">{{i}}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </li>
+    <li>
+        <span class="font-weight-bold">Player 2 errors</span>: {{ duel.player_2_errors }}
+        {% if links_by_result.PLAYER_2_ERROR %}
+            <select onchange="window.location = this.value">
+                <option disabled selected>Inspect a match</option>
+                {% for i, url in links_by_result.PLAYER_2_ERROR %}
+                    <option value="{{ url }}">{{i}}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </li>
+    <li>
+        <span class="font-weight-bold">Other errors</span>: {{ duel.other_errors }}
+        {% if links_by_result.OTHER_ERROR %}
+            <select onchange="window.location = this.value">
+                <option disabled selected>Inspect a match</option>
+                {% for i, url in links_by_result.OTHER_ERROR %}
+                    <option value="{{ url }}">{{i}}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </li>
+    <li>
+        <span class="font-weight-bold">Player 1 wins</span>: {{ duel.player_1_wins }}
+        {% if links_by_result.PLAYER_1_WIN %}
+            <select onchange="window.location = this.value">
+                <option disabled selected>Inspect a match</option>
+                {% for i, url in links_by_result.PLAYER_1_WIN %}
+                    <option value="{{ url }}">{{i}}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </li>
+    <li>
+        <span class="font-weight-bold">Player 2 wins</span>: {{ duel.player_2_wins }}
+        {% if links_by_result.PLAYER_2_WIN %}
+            <select onchange="window.location = this.value">
+                <option disabled selected>Inspect a match</option>
+                {% for i, url in links_by_result.PLAYER_2_WIN %}
+                    <option value="{{ url }}">{{i}}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </li>
+    <li>
+        <span class="font-weight-bold">Draws</span>: {{ duel.draws }}
+        {% if links_by_result.DRAW %}
+            <select onchange="window.location = this.value">
+                <option disabled selected>Inspect a match</option>
+                {% for i, url in links_by_result.DRAW %}
+                    <option value="{{ url }}">{{i}}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </li>
+    <li><span class="font-weight-bold">Player 1 score</span>: {{ duel.player_1_score }}</li>
+    <li><span class="font-weight-bold">Player 2 score</span>: {{ duel.player_2_score }}</li>
+    <li>
+        {% if duel.state == duel.FAILED %}
+            <span class="badge badge-danger">Failed</span>: {{ duel.error_msg }}
+        {% elif duel.state == duel.COMPLETED %}
+            <span class="badge badge-success">Finished</span>
+        {% else %}
+            <span class="badge badge-secondary">Pending</span>
+        {% endif %}
+        {% if duel.logs %}
+            <a href="{% url 'duel_logs_download' duel.id %}">See logs</a>
+        {% endif %}
+    </li>
+    {% if duel.results %}
+        <li><a href="{% url 'duel_results_download' duel.id %}">Download raw results</a></li>
+    {% endif %}
+</ul>
+
+{% if match is not None %}
+    <h2>Match {{ match }}</h2>
+
+    <ul>
+        <li><span class="font-weight-bold">Result</span>: {{ match_obj.result }}</li>
+        {% if match_obj.error_msg %}
+            <li><span class="font-weight-bold">Error message</span>: {{ match_obj.error_msg }}</li>
+        {% endif %}
+        <li><span class="font-weight-bold">Player 1 score</span>: {{ match_obj.player_1_score }}</li>
+        <li><span class="font-weight-bold">Player 2 score</span>: {{ match_obj.player_2_score }}</li>
+        <li><span class="font-weight-bold">First player</span>: {{ match_obj.first_player }}</li>
+    </ul>
+
+    {% for state_html in states_html %}
+        {% if not forloop.first %}<hr>{% endif %}
+        {{ state_html|safe }}
+    {% endfor %}
+{% endif %}
+
+{% endblock content %}

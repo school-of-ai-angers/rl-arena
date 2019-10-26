@@ -7,12 +7,14 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import redirect_to_login
-from .forms import CreateAccountForm, NewRevisionForm, NewCompetitorForm
+from web.forms import CreateAccountForm, NewRevisionForm, NewCompetitorForm
 from wsgiref.util import FileWrapper
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.db import models
 import os
+import json
+from importlib import import_module
 
 # Accounts
 
@@ -100,25 +102,35 @@ def environment_home(request, env, tournament=None):
         # By default, select the last finished tournament
         tournament = environment.tournament_set.filter(
             state__in=[Tournament.COMPLETED, Tournament.FAILED]).order_by('-edition').first()
+        if tournament is None:
+            # Fallback to first running
+            tournament = environment.tournament_set.order_by(
+                '-edition').first()
     else:
         tournament = get_object_or_404(
             Tournament, environment=environment, edition=tournament)
 
     # Prepare the list of previous and next tournaments
-    max_edition = environment.tournament_set.aggregate(models.Max('edition'))[
-        'edition__max']
-    future_editions = Tournament.objects.filter(
-        environment=environment,
-        edition__gte=tournament.edition + 1,
-        edition__lte=tournament.edition + 2
-    ).order_by('edition')
-    more_future_editions = tournament.edition <= max_edition - 3
-    past_editions = Tournament.objects.filter(
-        environment=environment,
-        edition__gte=tournament.edition - 2,
-        edition__lte=tournament.edition - 1
-    ).order_by('edition')
-    more_past_editions = tournament.edition > 3
+    if tournament is not None:
+        max_edition = environment.tournament_set.aggregate(models.Max('edition'))[
+            'edition__max']
+        future_editions = Tournament.objects.filter(
+            environment=environment,
+            edition__gte=tournament.edition + 1,
+            edition__lte=tournament.edition + 2
+        ).order_by('edition')
+        more_future_editions = tournament.edition <= max_edition - 3
+        past_editions = Tournament.objects.filter(
+            environment=environment,
+            edition__gte=tournament.edition - 2,
+            edition__lte=tournament.edition - 1
+        ).order_by('edition')
+        more_past_editions = tournament.edition > 3
+    else:
+        future_editions = []
+        more_future_editions = False
+        past_editions = []
+        more_past_editions = False
 
     return render(request, 'web/environment_home.html', {
         'environment': environment,
@@ -232,6 +244,13 @@ def duel_logs_download(request, duel_id):
     return _serve_file(duel.logs, 'log.log', 'application/text')
 
 
+def duel_results_download(request, duel_id):
+    duel = get_object_or_404(Duel, id=duel_id)
+    if duel.results is None:
+        raise Http404()
+    return _serve_file(duel.results, 'results.json', 'application/json')
+
+
 def tournament_participant(request, env, tournament, competitor):
     environment = get_object_or_404(Environment, slug=env)
     tournament = get_object_or_404(
@@ -254,4 +273,69 @@ def tournament_participant(request, env, tournament, competitor):
         'revision': revision,
         'participant': participant,
         'duels': duels
+    })
+
+
+def duel_home(request, environment, tournament, competitor_1, competitor_2, match=None):
+    duel = get_object_or_404(Duel, models.Q(
+        tournament__environment__slug=environment,
+        tournament__edition=tournament,
+        state=Duel.COMPLETED
+    ) & (
+        # Accept the competitors in either order
+        models.Q(
+            player_1__competitor__name=competitor_1,
+            player_2__competitor__name=competitor_2
+        ) | models.Q(
+            player_1__competitor__name=competitor_2,
+            player_2__competitor__name=competitor_1
+        )
+    ))
+
+    # Load match
+    matches = []
+    with open(duel.results) as fp:
+        matches = json.load(fp)['matches']
+
+    # Prepare match links
+    links_by_result = {
+        'PLAYER_1_ERROR': [],
+        'PLAYER_2_ERROR': [],
+        'OTHER_ERROR': [],
+        'PLAYER_1_WIN': [],
+        'PLAYER_2_WIN': [],
+        'DRAW': [],
+    }
+    for i, match_obj in enumerate(matches):
+        links_by_result[match_obj['result']].append(
+            (i, duel.get_absolute_url(i)))
+
+    # Prepare match frames
+    states_html = []
+    extra_head = ''
+    match_obj = None
+    if match is not None:
+        if match < 0 or match >= len(matches):
+            return Http404()
+        match_obj = matches[match]
+        EnvImpl = import_module(
+            f'environments.{environment}.environment').Environment
+        extra_head = EnvImpl.html_head()
+        for i, state in enumerate(match_obj['states']):
+            if i == 0:
+                message = 'Initial state'
+            else:
+                message = f'Player {(i-1)%2 + 1} moved'
+            if i == len(match_obj['states']) - 1:
+                message += '<br>Final state: ' + match_obj['result']
+            states_html.append(
+                f'<p class="text-center">{message}</p>' + EnvImpl.jsonable_to_html(state))
+
+    return render(request, 'web/duel_home.html', {
+        'duel': duel,
+        'links_by_result': links_by_result,
+        'states_html': states_html,
+        'extra_head': extra_head,
+        'match': match,
+        'match_obj': match_obj
     })

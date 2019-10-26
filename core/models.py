@@ -317,9 +317,26 @@ class Duel(models.Model):
         return self
 
     @property
+    def participant_1(self):
+        """ Return the participant object for player 1 """
+        return TournamentParticipant.objects.get(
+            tournament=self.tournament,
+            revision=self.player_1
+        )
+
+    @property
     def participant_2(self):
         """ Return the participant object for player 2 """
         return TournamentParticipant.objects.get(
             tournament=self.tournament,
             revision=self.player_2
         )
+
+    def get_absolute_url(self, match=None):
+        tournament = self.tournament
+        environment = tournament.environment
+        competitor_1 = self.player_1.competitor
+        competitor_2 = self.player_2.competitor
+        if match is None:
+            return reverse('duel_home', args=[environment.slug, tournament.edition, competitor_1.name, competitor_2.name])
+        return reverse('match_home', args=[environment.slug, tournament.edition, competitor_1.name, competitor_2.name, match])
