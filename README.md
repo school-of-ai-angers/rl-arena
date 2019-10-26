@@ -46,6 +46,8 @@ It will output a JSON document with the results of the duel with the format:
 
 ```json
 {
+    "result": "one of: ERROR, PLAYER_1_WIN, PLAYER_2_WIN, DRAW",
+    "error_msg": "",
     "num_matches": 17,
     "player_1_errors": 17,
     "player_2_errors": 17,
