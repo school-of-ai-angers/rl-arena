@@ -144,8 +144,8 @@ def handle_current(tournament):
                 add_win(duel.player_2, duel.player_2_score,
                         duel.player_1, duel.player_1_score)
             else:
-                add_draw(duel.player_1)
-                add_draw(duel.player_2)
+                add_draw(duel.player_1, duel.player_1_score)
+                add_draw(duel.player_2, duel.player_2_score)
         elif duel.state == Duel.FAILED:
             tournament.failed_duels += 1
             add_draw(duel.player_1, duel.player_1_score or 0.)
