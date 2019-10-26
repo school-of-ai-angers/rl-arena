@@ -1,1 +1,82 @@
-Tournament Participant
+{% extends 'web/base.html' %}
+
+{% block content %}
+<h1>Performance of {{ competitor.name }} - <span class="badge badge-info">v{{ revision.version_number }}</span> on edition {{ tournament.edition }}</h1>
+
+<p><span class="text-muted">by <a href="{% url 'user_home' competitor.submitter.username %}">{{ competitor.submitter.username }}</a></p>
+
+<ul>
+    <li><span class="font-weight-bold">Ranking</span>: {{ participant.ranking }}</li>
+    <li><span class="font-weight-bold">Points</span>: {{ participant.points }}</li>
+    <li><span class="font-weight-bold">Wins</span>: {{ participant.wins }}</li>
+    <li><span class="font-weight-bold">Draws</span>: {{ participant.draws }}</li>
+    <li><span class="font-weight-bold">Losses</span>: {{ participant.losses }}</li>
+    <li><span class="font-weight-bold">Total score</span>: {{ participant.total_score }}</li>
+</ul>
+
+<p>
+    <a class="btn btn-secondary" href="{% url 'environment_home_with_tournament' environment.slug tournament.edition %}#tournament">Tournament details</a>
+    <a class="btn btn-secondary" href="{% url 'competitor_home' environment.slug competitor.name %}">Competitor details</a>
+</p>
+
+<table class="table table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col" colspan="2">Adversary</th>
+            <th scope="col">Result</th>
+            <th scope="col">Wins</th>
+            <th scope="col">Draws</th>
+            <th scope="col">Losses</th>
+            <th scope="col">Errors</th>
+            <th scope="col">See matches</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for duel in duels %}
+        <tr>
+            {% with duel.player_2.competitor as competitor %}
+                <th scope="row">
+                    <a href="{% url 'tournament_participant' tournament.environment.slug tournament.edition competitor.name %}">
+                        {{ competitor.name }} - <span class="badge badge-info">v{{ competitor.last_version }}</span>
+                    </a>
+                </th>
+                <td>
+                    by <a href="{% url 'user_home' competitor.submitter.username %}">{{ competitor.submitter.username }}</a>
+                </td>
+            {% endwith %}
+            <td>
+            {% if duel.state == duel.FAILED %}
+                <span class="badge badge-warning">Failed</span>: {{ duel.error_msg }}
+            {% elif duel.state == duel.COMPLETED and duel.result == duel.PLAYER_1_WIN %}
+                <span class="badge badge-success">Won</span>
+            {% elif duel.state == duel.COMPLETED and duel.result == duel.PLAYER_2_WIN %}
+                <span class="badge badge-danger">Lost</span>
+            {% elif duel.state == duel.COMPLETED and duel.result == duel.DRAW %}
+                <span class="badge badge-info">Drawn</span>
+            {% else %}
+                <span class="badge badge-secondary">Pending</span>
+            {% endif %}
+            <br>
+            {% if duel.logs %}
+                <a href="{% url 'duel_logs_download' duel.id %}">See logs</a>
+            {% endif %}
+            </td>
+            {% if duel.state == duel.COMPLETED %}
+                <td>{{ duel.player_1_wins }}</td>
+                <td>{{ duel.draws }}</td>
+                <td>{{ duel.player_2_wins }}</td>
+                <td>{{ duel.player_1_errors }}</td>
+                <td><a href="#">See matches</a></td>
+            {% else %}
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock content %}

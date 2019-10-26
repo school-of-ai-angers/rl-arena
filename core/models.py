@@ -279,3 +279,18 @@ class Duel(models.Model):
     draws = models.PositiveIntegerField(null=True)
     player_1_score = models.FloatField(null=True)
     player_2_score = models.FloatField(null=True)
+
+    def set_as_player_1(self, player):
+        """
+        Modify the duel in place to make sure the given player is the player one.
+        This is a hacky but helpful method to simplify view code
+        """
+        if player == self.player_1:
+            return self
+
+        self.player_1, self.player_2 = self.player_2, self.player_1
+        self.result = Duel.PLAYER_1_WIN if self.result == Duel.PLAYER_2_WIN else Duel.PLAYER_2_WIN if self.result == Duel.PLAYER_1_WIN else self.result
+        self.player_1_errors, self.player_2_errors = self.player_2_errors, self.player_1_errors
+        self.player_1_wins, self.player_2_wins = self.player_2_wins, self.player_1_wins
+        self.player_1_score, self.player_2_score = self.player_2_score, self.player_1_score
+        return self

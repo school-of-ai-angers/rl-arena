@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, Http404, HttpResponseBadRequest, HttpResponseForbidden
 from django.template import loader
 from django.urls import reverse
-from core.models import Environment, User, Competitor, Revision, Tournament
+from core.models import Environment, User, Competitor, Revision, Tournament, TournamentParticipant, Duel
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -207,11 +207,31 @@ def revision_test_logs_download(request, env, competitor, revision):
     return _serve_file(revision.test_logs, 'test.log', 'application/text')
 
 
+def duel_logs_download(request, duel_id):
+    duel = get_object_or_404(Duel, id=duel_id)
+    if duel.logs is None:
+        raise Http404()
+    return _serve_file(duel.logs, 'log.log', 'application/text')
+
+
 def tournament_participant(request, env, tournament, competitor):
     environment = get_object_or_404(Environment, slug=env)
     tournament = get_object_or_404(
         Tournament, environment=environment, edition=tournament)
     revision = get_object_or_404(Revision, competitor__name=competitor)
+    participant = get_object_or_404(
+        TournamentParticipant, tournament=tournament, revision=revision)
+    duels = [
+        duel.set_as_player_1(revision)
+        for duel in Duel.objects.filter(tournament=tournament).filter(
+            models.Q(player_1=revision) | models.Q(player_2=revision))
+    ]
+    duels.sort(key=lambda duel: duel.player_2.competitor.name)
     return render(request, 'web/tournament_participant.html', {
-        'revision': revision
+        'environment': environment,
+        'tournament': tournament,
+        'competitor': revision.competitor,
+        'revision': revision,
+        'participant': participant,
+        'duels': duels
     })

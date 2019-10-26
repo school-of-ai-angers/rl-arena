@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<h1>{{ competitor.name }} <span class="badge badge-info">v{{ competitor.last_version }}</span></h1>
+<h1>Competitor {{ competitor.name }} - <span class="badge badge-info">v{{ competitor.last_version }}</span></h1>
 
 <p><span class="text-muted">by <a href="{% url 'user_home' competitor.submitter.username %}">{{ competitor.submitter.username }}</a></p>
 
