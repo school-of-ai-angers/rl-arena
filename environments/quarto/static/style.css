@@ -6,18 +6,6 @@
     position: relative;
 }
 
-.quarto-reserve {
-    width: 400px !important;
-    margin: auto;
-    transform: scale(0.75);
-}
-
-.quarto-reserve .col {
-    text-align: center;
-    font-weight: bold;
-    padding-top: 85px;
-}
-
 .quarto-piece-0,
 .quarto-piece-1,
 .quarto-piece-2,
@@ -236,4 +224,17 @@
 
 .quarto-reserve-used {
     opacity: 0;
+}
+
+.quarto-reserve {
+    width: 400px !important;
+    margin: auto;
+    transform: scale(0.75);
+}
+
+.quarto-reserve .col {
+    text-align: center;
+    font-weight: bold;
+    padding-top: 85px;
+    color: inherit;
 }

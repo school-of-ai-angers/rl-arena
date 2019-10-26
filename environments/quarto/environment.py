@@ -113,14 +113,15 @@ class Environment:
 
         # Detect winning line
         win_line = []
+        state = np.asarray(jsonable)
         for line in Environment.lines:
-            if Environment.has_common_trait(jsonable[line]):
+            if Environment.has_common_trait(state[line]):
                 win_line = line
                 break
 
         # Build main board divs
         main_board = '\n'.join(
-            f'<div class="quarto-position-{pos} {piece if piece != -1 else ""} {"quarto-win-line" if pos in win_line else ""}">{pos}</div>'
+            f'<div class="quarto-position-{pos} {"quarto-piece-" + str(piece) if piece != -1 else ""} {"quarto-win-line" if pos in win_line else ""}">{pos}</div>'
             for pos, piece in enumerate(jsonable)
         )
 
