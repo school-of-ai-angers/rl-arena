@@ -14,7 +14,7 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ env.name }}</h5>
                     <p class="card-text">{{ env.num_competitors }} competitor{{ env.num_competitors|pluralize }} by {{ env.num_submitters }} user{{ env.num_submitters|pluralize }}</p>
-                    <a href="{% url 'environment_home' env.slug %}" class="btn btn-primary stretched-link">Details</a>
+                    <a href="{{ env.get_absolute_url }}" class="btn btn-primary stretched-link">Details</a>
                 </div>
             </div>
         {% endfor %}

@@ -10,13 +10,13 @@ def tournament(tournament):
     """
     Draws the tournament table
     """
-    players = TournamentParticipant.objects.filter(
+    participants = TournamentParticipant.objects.filter(
         tournament=tournament
     ).order_by('ranking', 'revision__competitor__name').all()
 
     prev_ranking = None
     rankings = []
-    for player in players:
+    for player in participants:
         if prev_ranking is None or player.ranking != prev_ranking['ranking']:
             prev_ranking = {
                 'ranking': player.ranking,
@@ -31,5 +31,5 @@ def tournament(tournament):
         'tournament': tournament,
         'good_progress_width': 100 * tournament.completed_duels / tournament.total_duels,
         'bad_progress_width': 100 * tournament.failed_duels / tournament.total_duels,
-        'players_and_rankings': list(zip(players, rankings))
+        'participants_and_rankings': list(zip(participants, rankings))
     }

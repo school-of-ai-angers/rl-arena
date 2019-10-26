@@ -107,11 +107,17 @@ def environment_home(request, env, tournament=None):
     # Prepare the list of previous and next tournaments
     max_edition = environment.tournament_set.aggregate(models.Max('edition'))[
         'edition__max']
-    future_editions = list(
-        range(tournament.edition+1, min(max_edition, tournament.edition+2)+1))
+    future_editions = Tournament.objects.filter(
+        environment=environment,
+        edition__gte=tournament.edition + 1,
+        edition__lte=tournament.edition + 2
+    ).order_by('edition')
     more_future_editions = tournament.edition <= max_edition - 3
-    past_editions = list(
-        range(max(1, tournament.edition-2), tournament.edition))
+    past_editions = Tournament.objects.filter(
+        environment=environment,
+        edition__gte=tournament.edition - 2,
+        edition__lte=tournament.edition - 1
+    ).order_by('edition')
     more_past_editions = tournament.edition > 3
 
     return render(request, 'web/environment_home.html', {
@@ -218,9 +224,11 @@ def tournament_participant(request, env, tournament, competitor):
     environment = get_object_or_404(Environment, slug=env)
     tournament = get_object_or_404(
         Tournament, environment=environment, edition=tournament)
-    revision = get_object_or_404(Revision, competitor__name=competitor)
-    participant = get_object_or_404(
-        TournamentParticipant, tournament=tournament, revision=revision)
+    competitor = get_object_or_404(
+        Competitor, environment=environment, name=competitor)
+    participant = TournamentParticipant.objects.get(
+        tournament=tournament, revision__competitor=competitor)
+    revision = participant.revision
     duels = [
         duel.set_as_player_1(revision)
         for duel in Duel.objects.filter(tournament=tournament).filter(
@@ -230,7 +238,7 @@ def tournament_participant(request, env, tournament, competitor):
     return render(request, 'web/tournament_participant.html', {
         'environment': environment,
         'tournament': tournament,
-        'competitor': revision.competitor,
+        'competitor': competitor,
         'revision': revision,
         'participant': participant,
         'duels': duels

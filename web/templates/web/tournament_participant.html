@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Performance of {{ competitor.name }} - <span class="badge badge-info">v{{ revision.version_number }}</span> on edition {{ tournament.edition }}</h1>
 
-<p><span class="text-muted">by <a href="{% url 'user_home' competitor.submitter.username %}">{{ competitor.submitter.username }}</a></p>
+<p><span class="text-muted">by <a href="{{ competitor.submitter.get_absolute_url }}">{{ competitor.submitter.username }}</a></p>
 
 <ul>
     <li><span class="font-weight-bold">Ranking</span>: {{ participant.ranking }}</li>
@@ -15,8 +15,8 @@
 </ul>
 
 <p>
-    <a class="btn btn-secondary" href="{% url 'environment_home_with_tournament' environment.slug tournament.edition %}#tournament">Tournament details</a>
-    <a class="btn btn-secondary" href="{% url 'competitor_home' environment.slug competitor.name %}">Competitor details</a>
+    <a class="btn btn-secondary" href="{{ tournament.get_absolute_url }}">Tournament details</a>
+    <a class="btn btn-secondary" href="{{ competitor.get_absolute_url }}">Competitor details</a>
 </p>
 
 <table class="table table-striped">
@@ -36,12 +36,12 @@
         <tr>
             {% with duel.player_2.competitor as competitor %}
                 <th scope="row">
-                    <a href="{% url 'tournament_participant' tournament.environment.slug tournament.edition competitor.name %}">
-                        {{ competitor.name }} - <span class="badge badge-info">v{{ competitor.last_version }}</span>
+                    <a href="{{ duel.participant_2.get_absolute_url }}">
+                        {{ competitor.name }} - <span class="badge badge-info">v{{ duel.player_2.version_number }}</span>
                     </a>
                 </th>
                 <td>
-                    by <a href="{% url 'user_home' competitor.submitter.username %}">{{ competitor.submitter.username }}</a>
+                    by <a href="{{ competitor.submitter.get_absolute_url }}">{{ competitor.submitter.username }}</a>
                 </td>
             {% endwith %}
             <td>

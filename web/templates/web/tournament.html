@@ -42,26 +42,26 @@
         </tr>
     </thead>
     <tbody>
-        {% for player, ranking in players_and_rankings %}
+        {% for participant, ranking in participants_and_rankings %}
             <tr>
                 {% if ranking %}
                     <th scope="row" rowspan="{{ ranking.span }}">{{ ranking.ranking }}</th>
                 {% endif %}
-                {% with player.revision.competitor as competitor %}
+                {% with participant.revision.competitor as competitor %}
                     <td>
-                        <a href="{% url 'tournament_participant' tournament.environment.slug tournament.edition competitor.name %}">
-                            {{ competitor.name }} - <span class="badge badge-info">v{{ competitor.last_version }}</span>
+                        <a href="{{ participant.get_absolute_url }}">
+                            {{ competitor.name }} - <span class="badge badge-info">v{{ participant.revision.version_number }}</span>
                         </a>
                     </td>
                     <td>
-                        <a href="{% url 'user_home' competitor.submitter.username %}">{{ competitor.submitter.username }}</a>
+                        <a href="{{ competitor.submitter.get_absolute_url }}">{{ competitor.submitter.username }}</a>
                     </td>
                 {% endwith %}
-                <td>{{ player.points }}</td>
-                <td>{{ player.wins }}</td>
-                <td>{{ player.draws }}</td>
-                <td>{{ player.losses }}</td>
-                <td>{{ player.total_score }}</td>
+                <td>{{ participant.points }}</td>
+                <td>{{ participant.wins }}</td>
+                <td>{{ participant.draws }}</td>
+                <td>{{ participant.losses }}</td>
+                <td>{{ participant.total_score }}</td>
             </tr>
         {% endfor %}
     </tbody>

@@ -3,6 +3,7 @@ from core.settings import MEDIA_ROOT
 from django.core.validators import RegexValidator, FileExtensionValidator
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.urls import reverse
 from markdown import markdown
 import uuid
 
@@ -49,6 +50,9 @@ class Environment(models.Model):
         """ The static image file name """
         return f'environment-{self.slug}/{self.image}'
 
+    def get_absolute_url(self):
+        return reverse('environment_home', args=[self.slug])
+
 
 class User(AbstractUser):
     """ A submitter """
@@ -63,6 +67,9 @@ class User(AbstractUser):
     # User email for login, since it is much easier to remember
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
+
+    def get_absolute_url(self):
+        return reverse('user_home', args=[self.username])
 
 
 class Competitor(models.Model):
@@ -92,6 +99,9 @@ class Competitor(models.Model):
             models.UniqueConstraint(
                 fields=['environment', 'name'], name='unique_environment')
         ]
+
+    def get_absolute_url(self):
+        return reverse('competitor_home', args=[self.environment.slug, self.name])
 
 
 def zip_file_path(instance, filename):
@@ -200,6 +210,14 @@ class TournamentParticipant(models.Model):
     # the next ones. For example, if first place is tied: 1, 1, 3
     ranking = models.PositiveIntegerField()
 
+    def get_absolute_url(self):
+        tournament = self.tournament
+        return reverse('tournament_participant', args=[
+            tournament.environment.slug,
+            tournament.edition,
+            self.revision.competitor.name
+        ])
+
 
 class Tournament(models.Model):
     """
@@ -230,6 +248,9 @@ class Tournament(models.Model):
     total_duels = models.PositiveIntegerField()
     completed_duels = models.PositiveIntegerField(default=0)
     failed_duels = models.PositiveIntegerField(default=0)
+
+    def get_absolute_url(self):
+        return reverse('environment_home_with_tournament', args=[self.environment.slug, self.edition]) + '#tournament'
 
 
 class Duel(models.Model):

@@ -14,7 +14,7 @@
     {% if request.user.is_authenticated %}
         <div class="col-sm-4">
             <h2>Submit a new player</h2>
-            <form action="{% url 'environment_home' environment.slug %}" method="post" enctype="multipart/form-data">
+            <form action="{{ environment.get_absolute_url }}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ new_competitor_form|crispy }}
                 <button type="submit" class="btn btn-primary">Upload</button>
@@ -25,7 +25,7 @@
             {% if user_competitors %}
                 <ul class="list-group">
                     {% for competitor in user_competitors %}
-                        <li class="list-group-item"><a href="{% url 'competitor_home' environment.slug competitor.name %}">{{ competitor.name }} - <span class="badge badge-info">v{{ competitor.last_version }}</span></a>
+                        <li class="list-group-item"><a href="{{ competitor.get_absolute_url }}">{{ competitor.name }} - <span class="badge badge-info">v{{ competitor.last_version }}</span></a>
                         {% with competitor.last_revision as revision %}
                             {% if revision.test_state == revision.TEST_COMPLETED %}
                                 <span class="badge badge-success">Ready</span>
@@ -64,11 +64,11 @@
             </li>
         {% endif %}
         {% for edition in past_editions %}
-            <li class="page-item"><a class="page-link" href="{% url 'environment_home_with_tournament' environment.slug edition %}#tournament">{{ edition }}</a></li>
+            <li class="page-item"><a class="page-link" href="{{ edition.get_absolute_url }}">{{ edition.edition }}</a></li>
         {% endfor %}
         <li class="page-item active"><span class="page-link">{{ tournament.edition }}</span></li>
         {% for edition in future_editions %}
-            <li class="page-item"><a class="page-link" href="{% url 'environment_home_with_tournament' environment.slug edition %}#tournament">{{ edition }}</a></li>
+            <li class="page-item"><a class="page-link" href="{{ edition.get_absolute_url }}">{{ edition.edition }}</a></li>
         {% endfor %}
         {% if more_future_editions %}
             <li class="page-item disabled">
