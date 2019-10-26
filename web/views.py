@@ -157,11 +157,23 @@ def competitor_home(request, env, competitor):
     else:
         form = NewRevisionForm()
 
+    # Load revisions
+    revisions = competitor.revision_set.order_by('-version_number').all()
+
+    # Load tournaments participants
+    revisions_participants = []
+    for revision in revisions:
+        participants = TournamentParticipant.objects.filter(
+            revision=revision,
+        ).order_by('-tournament__edition')
+        revisions_participants.append(
+            (revision, max(1, len(participants)), participants))
+
     return render(request, 'web/competitor_home.html', {
         'competitor': competitor,
         'active_environment_slug': env,
         'fully_visible': competitor.is_fully_visible_for(request.user),
-        'revisions': competitor.revision_set.order_by('version_number').all(),
+        'revisions_participants': revisions_participants,
         'new_revision_form': form
     })
 

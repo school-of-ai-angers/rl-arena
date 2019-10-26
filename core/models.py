@@ -315,3 +315,11 @@ class Duel(models.Model):
         self.player_1_wins, self.player_2_wins = self.player_2_wins, self.player_1_wins
         self.player_1_score, self.player_2_score = self.player_2_score, self.player_1_score
         return self
+
+    @property
+    def participant_2(self):
+        """ Return the participant object for player 2 """
+        return TournamentParticipant.objects.get(
+            tournament=self.tournament,
+            revision=self.player_2
+        )
