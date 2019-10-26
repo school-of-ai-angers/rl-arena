@@ -84,10 +84,10 @@ if __name__ == '__main__':
                 duel_result['player_2_errors']
             player_2_effective_wins = duel_result['player_2_wins'] + \
                 duel_result['player_1_errors']
-            player_1_points = player_1_effective_wins + \
-                duel_result['draws'] / 2
-            player_2_points = player_2_effective_wins + \
-                duel_result['draws'] / 2
+            player_1_points = 2 * player_1_effective_wins + \
+                duel_result['draws']
+            player_2_points = 2 * player_2_effective_wins + \
+                duel_result['draws']
 
             if player_1_points > player_2_points:
                 duel_result['result'] = 'PLAYER_1_WIN'
