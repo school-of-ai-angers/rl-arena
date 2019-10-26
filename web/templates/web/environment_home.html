@@ -1,16 +1,16 @@
 {% extends 'web/base.html' %}
-{% load crispy_forms_tags %}
+{% load crispy_forms_tags tournament %}
 
 {% block content %}
 <h1>{{ environment.name }}</h1>
 
 
-<div class="my-2 bg-light p-3">
+<div class="my-3 bg-light p-3">
     {{ environment.description_html | safe }}
     <p>See the <a href="https://github.com/school-of-ai-angers/rl-arena/blob/master/environments/{{ environment.slug }}/environment.py" target="_blank">Python source</a> of this environment</p>
 </div>
 
-<div class="row my-2">
+<div class="row my-3">
     {% if request.user.is_authenticated %}
         <div class="col-sm-4">
             <h2>Submit a new player</h2>
@@ -50,10 +50,18 @@
     {% endif %}
 </div>
 
-<div class="row my-2">
+<div class="row my-3">
     <div class="col">
         <h2>Tournaments</h2>
     </div>
 </div>
+
+<ul class="pagination justify-content-center">
+    <li class="page-item"><a class="page-link" href="#">1</a></li>
+    <li class="page-item page-item active"><a class="page-link" href="#">2</a></li>
+    <li class="page-item"><a class="page-link" href="#">3</a></li>
+</ul>
+
+{% tournament tournament %}
 
 {% endblock content %}

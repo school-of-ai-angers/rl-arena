@@ -1,0 +1,51 @@
+{% if tournament.state == tournament.RUNNING %}
+<p>
+    <div>Tournament is in progress</div>
+    <div class="progress" style="height: 25px;">
+        <div
+            class="progress-bar progress-bar-striped"
+            style="width: {{ progress_width }}%">
+            {{ finished_duels }}/{{ total_duels }} matches
+        </div>
+    </div>
+</p>
+{% endif %}
+
+<table class="table table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Ranking</th>
+            <th scope="col">Player</th>
+            <th scope="col">User</th>
+            <th scope="col">Points</th>
+            <th scope="col">Wins</th>
+            <th scope="col">Draws</th>
+            <th scope="col">Losses</th>
+            <th scope="col">Total score</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for player, ranking in players_and_rankings %}
+            <tr>
+                {% if ranking %}
+                    <th scope="row" rowspan="{{ ranking.span }}">{{ ranking.ranking }}</th>
+                {% endif %}
+                {% with player.revision.competitor as competitor %}
+                    <td>
+                        <a href="{% url 'tournament_participant' tournament.environment.slug tournament.edition competitor.name %}">
+                            {{ competitor.name }} - <span class="badge badge-info">v{{ competitor.last_version }}</span>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'user_home' competitor.submitter.username %}">{{ competitor.submitter.username }}</a>
+                    </td>
+                {% endwith %}
+                <td>{{ player.points }}</td>
+                <td>{{ player.wins }}</td>
+                <td>{{ player.draws }}</td>
+                <td>{{ player.losses }}</td>
+                <td>{{ player.total_score }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
