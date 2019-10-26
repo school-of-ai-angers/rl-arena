@@ -222,25 +222,15 @@ class Tournament(models.Model):
     ended_at = models.DateTimeField(null=True)
 
 
-class DuelParticipant(models.Model):
-    """ Represent a player participation on a duel """
-    duel = models.ForeignKey('Duel', models.CASCADE)
-    revision = models.ForeignKey(Revision, models.CASCADE)
-    # The player performace one-hot encoded, that is, after the duel is finished
-    # exactly one of win, loss, draw will be 1
-    win = models.PositiveIntegerField()
-    loss = models.PositiveIntegerField()
-    draw = models.PositiveIntegerField()
-    # Sum of the score of all matches of this submissions
-    score = models.FloatField()
-
-
 class Duel(models.Model):
     """ Represent multiple matches between two players of the same tournament """
-    # How many matches will be played in this duel
-    num_matches = models.PositiveIntegerField()
-    # The two participating players and their performance
-    participants = models.ManyToManyField(Revision, through=DuelParticipant)
+    tournament = models.ForeignKey(Tournament, models.CASCADE)
+
+    # The two participating players
+    player_1 = models.ForeignKey(
+        Revision, models.CASCADE, related_name='player_1')
+    player_2 = models.ForeignKey(
+        Revision, models.CASCADE, related_name='player_2')
 
     # States
     SCHEDULED = 'SCHEDULED'
@@ -253,6 +243,28 @@ class Duel(models.Model):
         FAILED,
         COMPLETED]), default=SCHEDULED)
 
+    created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True)
     ended_at = models.DateTimeField(null=True)
     logs = models.FilePathField(null=True, path=MEDIA_ROOT+'duel_logs/')
+    results = models.FilePathField(null=True, path=MEDIA_ROOT+'duel_results/')
+
+    # Duel results
+    ERROR = 'ERROR'
+    PLAYER_1_WIN = 'PLAYER_1_WIN'
+    PLAYER_2_WIN = 'PLAYER_2_WIN'
+    DRAW = 'DRAW'
+    result = models.CharField(max_length=100, choices=_choices_with([
+        ERROR,
+        PLAYER_1_WIN,
+        PLAYER_2_WIN,
+        DRAW]), blank=True)
+    num_matches = models.PositiveIntegerField(default=0)
+    player_1_errors = models.PositiveIntegerField(default=0)
+    player_2_errors = models.PositiveIntegerField(default=0)
+    other_errors = models.PositiveIntegerField(default=0)
+    player_1_wins = models.PositiveIntegerField(default=0)
+    player_2_wins = models.PositiveIntegerField(default=0)
+    draws = models.PositiveIntegerField(default=0)
+    player_1_score = models.PositiveIntegerField(default=0)
+    player_2_score = models.PositiveIntegerField(default=0)
