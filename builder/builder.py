@@ -12,7 +12,7 @@ import uuid
 
 class BuilderController(TaskController):
     Model = Revision
-    fields_prefix = 'image'
+    fields_prefix = 'image_'
     scheduled_state = Revision.IMAGE_SCHEDULED
     running_state = Revision.IMAGE_RUNNING
     completed_state = Revision.IMAGE_COMPLETED

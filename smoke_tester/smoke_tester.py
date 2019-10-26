@@ -14,7 +14,7 @@ host_cwd = os.environ['HOST_CWD']
 
 class SmokeTesterController(TaskController):
     Model = Revision
-    fields_prefix = 'test'
+    fields_prefix = 'test_'
     scheduled_state = Revision.TEST_SCHEDULED
     running_state = Revision.TEST_RUNNING
     completed_state = Revision.TEST_COMPLETED

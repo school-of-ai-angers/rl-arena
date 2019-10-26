@@ -72,10 +72,10 @@ class TaskController:
         while True:
             # Timeout previous tasks
             timeouts = self.Model.objects.filter(**{
-                f'{self.fields_prefix}_state': self.running_state,
-                f'{self.fields_prefix}_started_at__lt': timezone.now() - self.task_timeout
+                f'{self.fields_prefix}state': self.running_state,
+                f'{self.fields_prefix}started_at__lt': timezone.now() - self.task_timeout
             }).update(**{
-                f'{self.fields_prefix}_state': self.scheduled_state
+                f'{self.fields_prefix}state': self.scheduled_state
             })
             if timeouts > 0:
                 logger.warn(f'Timeouted {timeouts} tasks')
@@ -87,10 +87,10 @@ class TaskController:
                 logger.info(f'Will execute task {task}')
 
                 # Change state
-                setattr(task, f'{self.fields_prefix}_state',
+                setattr(task, f'{self.fields_prefix}state',
                         self.running_state)
                 setattr(
-                    task, f'{self.fields_prefix}_started_at', timezone.now())
+                    task, f'{self.fields_prefix}started_at', timezone.now())
                 task.save()
 
                 # Call main builder logic
@@ -103,17 +103,17 @@ class TaskController:
                 # Save result
                 if result.ok:
                     logger.info('Task completed')
-                    setattr(task, f'{self.fields_prefix}_state',
+                    setattr(task, f'{self.fields_prefix}state',
                             self.completed_state)
                 else:
                     logger.warn(f'Task failed with {result.error_msg}')
-                    setattr(task, f'{self.fields_prefix}_state',
+                    setattr(task, f'{self.fields_prefix}state',
                             self.failed_state)
                     setattr(
-                        task, f'{self.fields_prefix}_error_msg', result.error_msg[:200])
-                setattr(task, f'{self.fields_prefix}_logs',
+                        task, f'{self.fields_prefix}error_msg', result.error_msg[:200])
+                setattr(task, f'{self.fields_prefix}logs',
                         self.create_log_file(result.task_log))
-                setattr(task, f'{self.fields_prefix}_ended_at', timezone.now())
+                setattr(task, f'{self.fields_prefix}ended_at', timezone.now())
                 task.save()
             else:
                 time.sleep(self.idle_sleep.total_seconds())

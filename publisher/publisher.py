@@ -15,7 +15,7 @@ PUBLISHER_WEB_URL = os.environ['PUBLISHER_WEB_URL']
 
 class PublisherController(TaskController):
     Model = Revision
-    fields_prefix = 'publish'
+    fields_prefix = 'publish_'
     scheduled_state = Revision.PUBLISH_SCHEDULED
     running_state = Revision.PUBLISH_RUNNING
     completed_state = Revision.PUBLISH_COMPLETED
