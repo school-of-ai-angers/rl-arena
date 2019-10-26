@@ -2,6 +2,7 @@ from core.models import Environment, Tournament, Competitor, Revision, Tournamen
 import logging
 import time
 from django.db import models
+from django.utils import timezone
 logger = logging.getLogger(__name__)
 
 
@@ -20,7 +21,9 @@ def main():
                 handle_current(tournament)
             else:
                 participants = set(
-                    [p.zip_file for p in tournament.participants])
+                    (revision.competitor.id, revision.version_number)
+                    for revision in tournament.participants.all()
+                )
                 handle_new(env, participants)
 
         time.sleep(30)
@@ -51,10 +54,12 @@ def handle_new(env, prev_competitors_set):
         ]
 
         # Create new tournament
+        total_duels = len(competitors_set) * (len(competitors_set) - 1) / 2
         tournament = Tournament.objects.create(
             environment=env,
             edition=Tournament.objects.filter(environment=env).count() + 1,
-            state=Tournament.RUNNING
+            state=Tournament.RUNNING,
+            total_duels=total_duels
         )
         for revision in revisions:
             TournamentParticipant.objects.create(
@@ -97,4 +102,82 @@ def handle_new(env, prev_competitors_set):
 
 
 def handle_current(tournament):
-    pass
+    # Load participants
+    participants = TournamentParticipant.objects.filter(
+        tournament=tournament).all()
+    logger.info(f'Loaded {len(participants)} participants')
+
+    # Reset counters
+    tournament.total_duels = 0
+    tournament.completed_duels = 0
+    tournament.failed_duels = 0
+    participant_by_revision = {}
+    for p in participants:
+        p.wins = 0
+        p.losses = 0
+        p.draws = 0
+        p.total_score = 0
+        participant_by_revision[p.revision] = p
+
+    # Update counters
+    def add_win(winner, winner_score, loser, loser_score):
+        winner = participant_by_revision[winner]
+        loser = participant_by_revision[loser]
+        winner.wins += 1
+        loser.losses += 1
+        winner.total_score += winner_score
+        loser.total_score += loser_score
+
+    def add_draw(player, score):
+        player = participant_by_revision[player]
+        player.draws += 1
+        player.total_score += score
+
+    for duel in tournament.duel_set.all():
+        tournament.total_duels += 1
+        if duel.state == Duel.COMPLETED:
+            tournament.completed_duels += 1
+            if duel.result == Duel.PLAYER_1_WIN:
+                add_win(duel.player_1, duel.player_1_score,
+                        duel.player_2, duel.player_2_score)
+            elif duel.result == Duel.PLAYER_2_WIN:
+                add_win(duel.player_2, duel.player_2_score,
+                        duel.player_1, duel.player_1_score)
+            else:
+                add_draw(duel.player_1)
+                add_draw(duel.player_2)
+        elif duel.state == Duel.FAILED:
+            tournament.failed_duels += 1
+            add_draw(duel.player_1, duel.player_1_score or 0.)
+            add_draw(duel.player_2, duel.player_2_score or 0.)
+
+    # Update ranking
+    # Build a list of tuples: (participant, ranking_values)
+    ranking_builder = []
+    for p in participants:
+        p.points = 2 * p.wins + p.draws
+        ranking_builder.append((p, (p.points, p.wins, p.total_score)))
+
+    # Sort and calculate ranking
+    ranking_builder.sort(key=lambda x: x[1], reverse=True)
+    logger.info(f'Ranking values are: {[x[1] for x in ranking_builder]}')
+    prev_values = None
+    prev_ranking = -1
+    for ranking, (p, values) in enumerate(ranking_builder, start=1):
+        if values != prev_values:
+            p.ranking = ranking
+            prev_values = values
+            prev_ranking = ranking
+        else:
+            # Tied
+            p.ranking = prev_ranking
+
+    # End of tournament
+    if tournament.failed_duels + tournament.completed_duels == tournament.total_duels:
+        tournament.ended_at = timezone.now()
+        tournament.state = Tournament.COMPLETED if tournament.failed_duels == 0 else Tournament.FAILED
+
+    # Save
+    tournament.save()
+    for p in participants:
+        p.save()
