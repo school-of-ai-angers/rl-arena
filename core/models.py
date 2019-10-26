@@ -226,6 +226,11 @@ class Tournament(models.Model):
 
     ended_at = models.DateTimeField(null=True)
 
+    # Progression
+    total_duels = models.PositiveIntegerField()
+    completed_duels = models.PositiveIntegerField(default=0)
+    failed_duels = models.PositiveIntegerField(default=0)
+
 
 class Duel(models.Model):
     """ Represent multiple matches between two players of the same tournament """
