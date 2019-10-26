@@ -1,6 +1,12 @@
+.tic-tac-toe-board table {
+    margin: auto;
+}
+
 .tic-tac-toe-board td {
     width: 100px;
     height: 100px;
+    text-align: center;
+    font-size: 50px;
 }
 
 .tic-tac-toe-vertical {
@@ -8,7 +14,7 @@
     border-right: 1px solid #000;
 }
 
-.tic-tac-toe-vertical {
+.tic-tac-toe-horizontal {
     border-top: 1px solid #000;
     border-bottom: 1px solid #000;
 }

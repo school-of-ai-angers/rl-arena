@@ -81,22 +81,22 @@ class Environment(BaseEnvironment):
                 return 'O'
 
         return f'''
-        <div id="tic-tac-toe-board">
+        <div class="tic-tac-toe-board">
             <table>
                 <tr>
-                    <td></td>
-                    <td class="tic-tac-toe-vertical"></td>
-                    <td></td>
+                    <td>{get_square(0)}</td>
+                    <td class="tic-tac-toe-vertical">{get_square(1)}</td>
+                    <td>{get_square(2)}</td>
                 </tr>
                 <tr>
-                    <td class="tic-tac-toe-horizontal"></td>
-                    <td class="tic-tac-toe-horizontal tic-tac-toe-vertical"></td>
-                    <td class="tic-tac-toe-horizontal"></td>
+                    <td class="tic-tac-toe-horizontal">{get_square(3)}</td>
+                    <td class="tic-tac-toe-horizontal tic-tac-toe-vertical">{get_square(4)}</td>
+                    <td class="tic-tac-toe-horizontal">{get_square(5)}</td>
                 </tr>
                 <tr>
-                    <td></td>
-                    <td class="tic-tac-toe-vertical"></td>
-                    <td></td>
+                    <td>{get_square(6)}</td>
+                    <td class="tic-tac-toe-vertical">{get_square(7)}</td>
+                    <td>{get_square(8)}</td>
                 </tr>
             </table>
         </div>
