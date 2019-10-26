@@ -107,3 +107,16 @@ services:
       # Allows to run docker from inside the container
       - /var/run/docker.sock:/var/run/docker.sock
     command: [-m, smoke_tester.main]
+  tournament_manager:
+    # Worker service that starts and keep track of tournaments
+    image: rl-arena
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD
+      - DJANGO_SECRET_KEY
+      - POSTGRES_HOST=db
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - DJANGO_SETTINGS_MODULE=tournament_manager.settings
+      - LOG_LEVEL=INFO
+    command: [-m, tournament_manager.main]
