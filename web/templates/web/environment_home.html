@@ -25,7 +25,17 @@
             {% if user_competitors %}
                 <ul class="list-group">
                     {% for competitor in user_competitors %}
-                        <li class="list-group-item"><a href="{% url 'competitor_home' environment.slug competitor.name %}">{{ competitor.name }} - <span class="badge badge-info">v{{ competitor.last_version }}</span></a></li>
+                        <li class="list-group-item"><a href="{% url 'competitor_home' environment.slug competitor.name %}">{{ competitor.name }} - <span class="badge badge-info">v{{ competitor.last_version }}</span></a>
+                        {% with competitor.last_revision as revision %}
+                            {% if revision.test_state == revision.TEST_COMPLETED %}
+                                <span class="badge badge-success">Ready</span>
+                            {% elif revision.test_state == revision.TEST_FAILED or revision.image_state == revision.IMAGE_FAILED %}
+                                <span class="badge badge-danger">Failed</span>
+                            {% else %}
+                                <span class="badge badge-secondary">Pending</span>
+                            {% endif %}
+                        {% endwith %}
+                        </li>
                     {% endfor %}
                 </ul>
             {% else %}

@@ -82,6 +82,11 @@ class Competitor(models.Model):
         """ Determines whether all information about this submission is accessible by the given user """
         return self.is_public or user.is_superuser or self.submitter == user
 
+    @property
+    def last_revision(self):
+        """ Link to the revion with the last version """
+        return Revision.objects.get(competitor=self, version_number=self.last_version)
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -259,12 +264,13 @@ class Duel(models.Model):
         PLAYER_1_WIN,
         PLAYER_2_WIN,
         DRAW]), blank=True)
-    num_matches = models.PositiveIntegerField(default=0)
-    player_1_errors = models.PositiveIntegerField(default=0)
-    player_2_errors = models.PositiveIntegerField(default=0)
-    other_errors = models.PositiveIntegerField(default=0)
-    player_1_wins = models.PositiveIntegerField(default=0)
-    player_2_wins = models.PositiveIntegerField(default=0)
-    draws = models.PositiveIntegerField(default=0)
-    player_1_score = models.PositiveIntegerField(default=0)
-    player_2_score = models.PositiveIntegerField(default=0)
+    error_msg = models.CharField(max_length=200, blank=True)
+    num_matches = models.PositiveIntegerField(null=True)
+    player_1_errors = models.PositiveIntegerField(null=True)
+    player_2_errors = models.PositiveIntegerField(null=True)
+    other_errors = models.PositiveIntegerField(null=True)
+    player_1_wins = models.PositiveIntegerField(null=True)
+    player_2_wins = models.PositiveIntegerField(null=True)
+    draws = models.PositiveIntegerField(null=True)
+    player_1_score = models.FloatField(null=True)
+    player_2_score = models.FloatField(null=True)
