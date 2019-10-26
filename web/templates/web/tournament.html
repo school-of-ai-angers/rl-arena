@@ -1,14 +1,31 @@
+<div class="my-2">
 {% if tournament.state == tournament.RUNNING %}
-<p>
-    <div>Tournament is in progress</div>
+    Tournament is in progress (started at {{ tournament.started_at }})
     <div class="progress" style="height: 25px;">
+    {% if tournament.completed_duels %}
         <div
             class="progress-bar progress-bar-striped"
-            style="width: {{ progress_width }}%">
-            {{ finished_duels }}/{{ total_duels }} matches
+            style="width: {{ good_progress_width }}%">
+            {{ tournament.completed_duels }} matches
         </div>
+    {% endif %}
+    {% if tournament.failed_duels %}
+        <div
+            class="progress-bar progress-bar-striped bg-danger"
+            style="width: {{ bad_progress_width }}%">
+            {{ tournament.failed_duels }} matches
+        </div>
+    {% endif %}
     </div>
-</p>
+{% else %}
+    Started at {{ tournament.started_at }} and ended at {{ tournament.ended_at }}
+{% endif %}
+</div>
+
+{% if tournament.failed_duels %}
+    <div class="alert alert-danger">
+        {{ tournament.failed_duels }} match{{ tournament.failed_duels|pluralize:'es' }} failed to finish
+    </div>
 {% endif %}
 
 <table class="table table-striped">

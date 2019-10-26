@@ -14,10 +14,6 @@ def tournament(tournament):
         tournament=tournament
     ).order_by('ranking', 'revision__competitor__name').all()
 
-    total_duels = Duel.objects.filter(tournament=tournament).count()
-    finished_duels = Duel.objects.filter(tournament=tournament, state__in=[
-                                         Duel.FAILED, Duel.COMPLETED]).count()
-
     prev_ranking = None
     rankings = []
     for player in players:
@@ -33,8 +29,7 @@ def tournament(tournament):
 
     return {
         'tournament': tournament,
-        'finished_duels': finished_duels,
-        'total_duels': total_duels,
-        'progress_width': 100 * finished_duels / total_duels,
+        'good_progress_width': 100 * tournament.completed_duels / tournament.total_duels,
+        'bad_progress_width': 100 * tournament.failed_duels / tournament.total_duels,
         'players_and_rankings': list(zip(players, rankings))
     }

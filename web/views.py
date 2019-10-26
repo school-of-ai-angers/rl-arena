@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, Http404, HttpResponseBadRequest, HttpResponseForbidden
 from django.template import loader
 from django.urls import reverse
-from core.models import Environment, User, Competitor, Revision
+from core.models import Environment, User, Competitor, Revision, Tournament
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -11,6 +11,7 @@ from .forms import CreateAccountForm, NewRevisionForm, NewCompetitorForm
 from wsgiref.util import FileWrapper
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
+from django.db import models
 import os
 
 # Accounts
@@ -58,7 +59,7 @@ def home(request):
     })
 
 
-def environment_home(request, env):
+def environment_home(request, env, tournament=None):
     environment = get_object_or_404(Environment, slug=env)
 
     if request.method == 'POST' and request.user.is_authenticated:
@@ -95,11 +96,34 @@ def environment_home(request, env):
     else:
         user_competitors = []
 
+    if tournament is None:
+        # By default, select the last finished tournament
+        tournament = environment.tournament_set.filter(
+            state__in=[Tournament.COMPLETED, Tournament.FAILED]).order_by('-edition').first()
+    else:
+        tournament = get_object_or_404(
+            Tournament, environment=environment, edition=tournament)
+
+    # Prepare the list of previous and next tournaments
+    max_edition = environment.tournament_set.aggregate(models.Max('edition'))[
+        'edition__max']
+    future_editions = list(
+        range(tournament.edition+1, min(max_edition, tournament.edition+2)+1))
+    more_future_editions = tournament.edition <= max_edition - 3
+    past_editions = list(
+        range(max(1, tournament.edition-2), tournament.edition))
+    more_past_editions = tournament.edition > 3
+
     return render(request, 'web/environment_home.html', {
         'environment': environment,
         'active_environment_slug': env,
         'new_competitor_form': form,
-        'user_competitors': user_competitors
+        'user_competitors': user_competitors,
+        'tournament': tournament,
+        'past_editions': past_editions,
+        'more_past_editions': more_past_editions,
+        'future_editions': future_editions,
+        'more_future_editions': more_future_editions,
     })
 
 
@@ -181,3 +205,13 @@ def revision_test_logs_download(request, env, competitor, revision):
     if revision.test_logs is None:
         raise Http404()
     return _serve_file(revision.test_logs, 'test.log', 'application/text')
+
+
+def tournament_participant(request, env, tournament, competitor):
+    environment = get_object_or_404(Environment, slug=env)
+    tournament = get_object_or_404(
+        Tournament, environment=environment, edition=tournament)
+    revision = get_object_or_404(Revision, competitor__name=competitor)
+    return render(request, 'web/tournament_participant.html', {
+        'revision': revision
+    })

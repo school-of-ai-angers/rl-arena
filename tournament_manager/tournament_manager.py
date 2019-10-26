@@ -176,6 +176,8 @@ def handle_current(tournament):
     if tournament.failed_duels + tournament.completed_duels == tournament.total_duels:
         tournament.ended_at = timezone.now()
         tournament.state = Tournament.COMPLETED if tournament.failed_duels == 0 else Tournament.FAILED
+    logger.info(
+        f'failed_duels={tournament.failed_duels}, completed_duels={tournament.completed_duels}, total_duels={tournament.total_duels}')
 
     # Save
     tournament.save()
