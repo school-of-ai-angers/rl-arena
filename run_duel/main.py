@@ -5,6 +5,7 @@ from run_duel.run_match import run_match
 import json
 import logging
 import os
+from gzip import GzipFile
 logging.basicConfig(level=os.environ['LOG_LEVEL'])
 logger = logging.getLogger(__name__)
 
@@ -108,5 +109,5 @@ if __name__ == '__main__':
 
     logger.info(f'Write to {output_file}')
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, 'w') as fp:
-        json.dump(duel_result, fp)
+    with GzipFile(output_file, 'w') as fp:
+        fp.write(json.dumps(duel_result).encode('utf-8'))

@@ -7,6 +7,7 @@ import shutil
 import traceback
 import uuid
 import json
+from gzip import GzipFile
 
 result_dir = os.path.join(settings.MEDIA_ROOT, 'revision_test_results')
 host_cwd = os.environ['HOST_CWD']
@@ -28,7 +29,7 @@ class SmokeTesterController(TaskController):
     def execute_task(self, task):
         # Run duel
         environment = task.competitor.environment
-        output_file = f'{result_dir}/{uuid.uuid4()}.json'
+        output_file = f'{result_dir}/{uuid.uuid4()}.json.gz'
         status, duel_logs = _run_shell(
             ['./run_duel.sh', 'smoke_test_duel', task.image_name, task.image_name, environment.slug, host_cwd, output_file])
         if status != 0:
@@ -36,8 +37,8 @@ class SmokeTesterController(TaskController):
 
         # Check result
         try:
-            with open(output_file) as fp:
-                result = json.load(fp)
+            with GzipFile(output_file, 'r') as fp:
+                result = json.loads(fp.read().decode('utf-8'))
             for match in result['matches']:
                 if match['result'] == 'PLAYER_1_ERROR' or match['result'] == 'PLAYER_2_ERROR':
                     return self.TaskResult.error('Player failed with ' + match['error_msg'], duel_logs)

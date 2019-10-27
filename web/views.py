@@ -15,6 +15,7 @@ from django.db import models
 import os
 import json
 from importlib import import_module
+from gzip import GzipFile
 
 # Accounts
 
@@ -251,7 +252,7 @@ def duel_results_download(request, duel_id):
     duel = get_object_or_404(Duel, id=duel_id)
     if duel.results is None:
         raise Http404()
-    return _serve_file(duel.results, 'results.json', 'application/json')
+    return _serve_file(duel.results, 'results.json.gz', 'application/gzip')
 
 
 def tournament_participant(request, env, tournament, competitor):
@@ -298,8 +299,8 @@ def duel_home(request, environment, tournament, competitor_1, competitor_2, matc
 
     # Load match
     matches = []
-    with open(duel.results) as fp:
-        matches = json.load(fp)['matches']
+    with GzipFile(duel.results, 'r') as fp:
+        matches = json.loads(fp.read().decode('utf-8'))['matches']
 
     # Prepare match links
     links_by_result = {

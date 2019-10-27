@@ -7,6 +7,7 @@ import shutil
 import traceback
 import uuid
 import json
+from gzip import GzipFile
 
 result_dir = os.path.join(settings.MEDIA_ROOT, 'duel_results')
 host_cwd = os.environ['HOST_CWD']
@@ -27,7 +28,7 @@ class DuelRunnerController(TaskController):
     def execute_task(self, task):
         # Run duel
         environment = task.tournament.environment
-        output_file = f'{result_dir}/{uuid.uuid4()}.json'
+        output_file = f'{result_dir}/{uuid.uuid4()}.json.gz'
         status, duel_logs = _run_shell([
             './run_duel.sh',
             'tournament_duel',
@@ -41,8 +42,8 @@ class DuelRunnerController(TaskController):
 
         # Save result
         try:
-            with open(output_file) as fp:
-                result = json.load(fp)
+            with GzipFile(output_file, 'r') as fp:
+                result = json.loads(fp.read().decode('utf-8'))
             task.results = output_file
             task.result = result['result']
             task.num_matches = result['num_matches']
