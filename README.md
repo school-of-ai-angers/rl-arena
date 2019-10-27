@@ -1,28 +1,9 @@
 # Reinforced Learning Arena
 
-## Project structure
+A platform to confront different players in multiple two-player games, like Tic-tac-toe and Quarto.
 
-```
-data
-    +- db
-    +- media
-        +- submissions
-        +- submission_image_logs
-        +- submission_test_logs
-        +- duel_logs
-```
-
-## Dev
-
-1. Clone this repo
-2. Install Docker and docker-compose
-3. Copy `example.env` as `.env` and edit it
-4. Run `./prepare_dev.sh`
-
-## Prepare publish repo
-
-1. `mkdir -p data/publish_keys`
-2. `ssh-keygen -f data/publish_keys/id_rsa`
+This project is a joint venture between the School of AI [in Angers](https://www.meetup.com/Angers-School-of-AI/) and in [Le Mans](https://www.meetup.com/Le-Mans-School-of-AI/), France to explore Reinforcement Learning in an engaging and dynamic setup.
+For that, we've decided to setup this arena where attendees can submit their own competitors and the system will make them battle against each other to decide who's the best!
 
 ## Environments
 
@@ -38,9 +19,31 @@ Each implementation resides inside its own directory in `environments`, providin
 - `info.yml`: data used to set-up the Environment model in the database
 - `static`: static files served on the website under the URL `/static/environment-&lt;environment>/`
 
-## Duel runner
+## Project Components
 
-This is a pure-Python script that executes a duel between two players. For that, it  takes the Docker-image name of each player and the name of the environment.
+* builder: responsible for preparing a Docker image wrapping each submission
+* core: main Django settings, database models and migrations
+* data: contains all user data, its subdirectories are mounted inside the multiple containers
+* duel_runner: launch and monitors the duels that are scheduled as part of the tournaments
+* environments: implement the different games
+* nginx: Nginx webproxy configuration
+* publisher: responsible for pushing public submissions to the repo [rl-arena-public-submissions](https://github.com/school-of-ai-angers/rl-arena-public-submissions)
+* run_duel: given two Docker images and the environment name, runs multiple matches and collect the results
+* smoke_tester: tests whether a given submission is valid by making it play against itself multiple times without any rule violation
+* terraform: controls the infrastructure deployment on DigitalOcean
+* tournament_manager: launch and monitors running tournaments, aggregating results and calculating rankings
+* web: main Django app with all the user-facing web platform
+
+## Development
+
+1. Clone this repo
+2. Install Docker and docker-compose
+3. Copy `example.env` as `.env` and edit it with values that fit you
+4. Run `./prepare_dev.sh`
+
+## Duel Runner
+
+This is a Python script that executes a duel between two players. For that, it  takes the Docker-image name of each player and the name of the environment.
 
 It will output a JSON document with the results of the duel with the format:
 
@@ -68,49 +71,49 @@ It will output a JSON document with the results of the duel with the format:
 }
 ```
 
-## Deployment
+## Production Deployment
 
-* secrets.tfvars
-* `cd terraform; terraform apply -var-file=secrets.tfvars`
+1. Install [Terraform](https://www.terraform.io/)
+2. Create a `terraform/secrets.tfvars` file with the necessary tokens
+3. `cd terraform; terraform apply -var-file=secrets.tfvars`
+4. Inside the recently-created Droplet, execute the following instructions. Note: this script should be executed manually, as there are some interactive steps!
 
-The following script should be executed manually, as there are some interactive steps!
+    ```sh
+    # Build source
+    git clone https://github.com/school-of-ai-angers/rl-arena.git
+    cd rl-arena
+    docker build -t rl-arena .
+    docker build -t rl-arena-nginx nginx
 
-```sh
-# Build source
-git clone https://github.com/school-of-ai-angers/rl-arena.git
-cd rl-arena
-docker build -t rl-arena .
-docker build -t rl-arena-nginx nginx
+    # Configure env
+    cp example.env .env
+    nano .env
 
-# Configure env
-cp example.env .env
-nano .env
+    # Prepare publisher repo
+    mkdir -p data/publish_keys
+    ssh-keygen -f data/publish_keys/id_rsa
+    cat data/publish_keys/id_rsa.pub
 
-# Prepare publisher repo
-mkdir -p data/publish_keys
-ssh-keygen -f data/publish_keys/id_rsa
-cat data/publish_keys/id_rsa.pub
+    # Prepare database
+    docker-compose up -d db
+    wait 30
+    docker-compose run --rm -T migrate
 
-# Prepare database
-docker-compose up -d db
-wait 30
-docker-compose run --rm -T migrate
+    # Prepare static files
+    docker-compose run --rm collectstatic
 
-# Prepare static files
-docker-compose run --rm collectstatic
+    # Start other services
+    docker-compose up -d web builder publisher smoke_tester tournament_manager duel_runner
 
-# Start other services
-docker-compose up -d web builder publisher smoke_tester tournament_manager duel_runner
+    # Generate certificate
+    docker-compose up -d nginx
+    docker-compose exec nginx bash
+    # Run it inside:
+    certbot --nginx --register-unsafely-without-email
+    # Get out
 
-# Generate certificate
-docker-compose up -d nginx
-docker-compose exec nginx bash
-# Run it inside:
-certbot --nginx --register-unsafely-without-email
-# Get out
+    # Rerun nginx
+    docker-compose stop nginx
+    docker-compose up -d nginx
 
-# Rerun nginx
-docker-compose stop nginx
-docker-compose up -d nginx
-
-```
+    ```
