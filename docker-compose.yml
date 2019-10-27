@@ -41,7 +41,6 @@ services:
       - DJANGO_SECRET_KEY
       - INVITATION_CODE
       - TEAMS
-      - ALLOWED_HOSTS
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
