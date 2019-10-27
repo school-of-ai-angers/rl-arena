@@ -99,3 +99,11 @@ docker-compose run --rm collectstatic
 # Start other services
 docker-compose up -d web builder publisher smoke_tester tournament_manager duel_runner nginx
 ```
+
+Inside the nginx container `docker-compose exec nginx bash`:
+
+```sh
+apt-get update
+apt-get install -y certbot python-certbot-nginx
+certbot --nginx --register-unsafely-without-email
+```
