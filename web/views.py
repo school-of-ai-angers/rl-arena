@@ -48,7 +48,8 @@ def profile(request):
 def user_home(request, username):
     user = get_object_or_404(User, username=username)
     return render(request, 'web/user_home.html', {
-        'user': user
+        'user': user,
+        'competitors': user.competitor_set.order_by('environment__slug', 'name')
     })
 
 # Main app
@@ -269,6 +270,7 @@ def tournament_participant(request, env, tournament, competitor):
     ]
     duels.sort(key=lambda duel: duel.player_2.competitor.name)
     return render(request, 'web/tournament_participant.html', {
+        'active_environment_slug': env,
         'environment': environment,
         'tournament': tournament,
         'competitor': competitor,
@@ -334,6 +336,7 @@ def duel_home(request, environment, tournament, competitor_1, competitor_2, matc
                 f'<p class="text-center">{message}</p>' + EnvImpl.jsonable_to_html(state))
 
     return render(request, 'web/duel_home.html', {
+        'active_environment_slug': environment,
         'duel': duel,
         'links_by_result': links_by_result,
         'states_html': states_html,

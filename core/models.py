@@ -95,6 +95,14 @@ class Competitor(models.Model):
         """ Link to the revion with the last version """
         return Revision.objects.get(competitor=self, version_number=self.last_version)
 
+    @property
+    def last_participant(self):
+        """ Return the most recent tournament participant (if any) """
+        return TournamentParticipant.objects.filter(
+            revision__competitor=self,
+            tournament__state=Tournament.COMPLETED
+        ).order_by('-tournament__edition').first()
+
     class Meta:
         constraints = [
             models.UniqueConstraint(

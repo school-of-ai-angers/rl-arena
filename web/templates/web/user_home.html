@@ -1,10 +1,51 @@
 {% extends 'web/base.html' %}
 
 {% block content %}
-<h2>Profile of {{user.username}}</h2>
+<h1>Profile of {{user.username}}</h1>
 
-{% if user.github %}
-<p>GitHub profile: <a href="https://github.com/{{ user.github | urlencode }}/">{{ user.github }}</a></p>
-{% endif %}
+<ul>
+    <li><span class="font-weight-bold">Team</span>: {{ user.team }}</li>
+    {% if user.github %}
+        <li><span class="font-weight-bold">GitHub profile</span>: <a href="https://github.com/{{ user.github | urlencode }}/" target="_blank">{{ user.github }}</a></li>
+    {% endif %}
+</ul>
+
+<h2>Submitted competitors</h2>
+
+<table class="table table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Environment</th>
+            <th scope="col">Competitor</th>
+            <th scope="col">Last ranking</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for competitor in competitors %}
+            <tr>
+                <td><a href="{{ competitor.environment.get_absolute_url }}">{{ competitor.environment.name }}</a></td>
+                <td>
+                    <a href="{{ competitor.get_absolute_url }}">
+                        {{ competitor.name }} - <span class="badge badge-info">v{{ competitor.last_version }}</span>
+                    </a>
+                </td>
+                <td>
+                    {% with competitor.last_participant as participant %}
+                        {% if participant %}
+                        <a href="{{ participant.get_absolute_url }}">
+                            {{ participant.ranking }} out of {{ participant.tournament.participants.count }}
+                        </a>
+                            {% if participant.revision.version_number != competitor.last_version %}
+                                (as <span class="badge badge-info">v{{ participant.revision.version_number }}</span>)
+                            {% endif %}
+                        {% else %}
+                        -
+                        {% endif %}
+                    {% endwith %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 {% endblock content %}
