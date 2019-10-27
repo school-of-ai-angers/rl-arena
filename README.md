@@ -73,6 +73,8 @@ It will output a JSON document with the results of the duel with the format:
 * secrets.tfvars
 * `cd terraform; terraform apply -var-file=secrets.tfvars`
 
+The following script should be executed manually, as there are some interactive steps!
+
 ```sh
 # Build source
 git clone https://github.com/school-of-ai-angers/rl-arena.git
@@ -98,11 +100,17 @@ docker-compose run --rm -T migrate
 docker-compose run --rm collectstatic
 
 # Start other services
-docker-compose up -d web builder publisher smoke_tester tournament_manager duel_runner nginx
-```
+docker-compose up -d web builder publisher smoke_tester tournament_manager duel_runner
 
-Inside the nginx container `docker-compose exec nginx bash`:
-
-```sh
+# Generate certificate
+docker-compose up -d nginx
+docker-compose exec nginx bash
+# Run it inside:
 certbot --nginx --register-unsafely-without-email
+# Get out
+
+# Rerun nginx
+docker-compose stop nginx
+docker-compose up -d nginx
+
 ```
