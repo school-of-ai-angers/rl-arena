@@ -70,5 +70,32 @@ It will output a JSON document with the results of the duel with the format:
 
 ## Deployment
 
-* migrations
-* static
+* secrets.tfvars
+* `cd terraform; terraform apply -var-file=secrets.tfvars`
+
+```sh
+# Build source
+git clone https://github.com/school-of-ai-angers/rl-arena.git
+cd rl-arena
+docker build -t rl-arena .
+
+# Configure env
+cp example.env .env
+nano .env
+
+# Prepare publisher repo
+mkdir -p data/publish_keys
+ssh-keygen -f data/publish_keys/id_rsa
+cat data/publish_keys/id_rsa.pub
+
+# Prepare database
+docker-compose up -d db
+wait 30
+docker-compose run --rm -T migrate
+
+# Prepare static files
+docker-compose run --rm collectstatic
+
+# Start other services
+docker-compose up -d web builder publisher smoke_tester tournament_manager duel_runner nginx
+```

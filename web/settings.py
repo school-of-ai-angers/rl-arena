@@ -81,7 +81,10 @@ STATICFILES_DIRS = [
     (f'environment-{environment.name}',
      os.path.join(environment.path, 'static'))
     for environment in os.scandir('environments')
+    if environment.is_dir()
 ]
+
+STATIC_ROOT = BASE_DIR + '/data/static/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 

@@ -55,7 +55,7 @@ services:
       - ./core:/app/core:ro
       - ./environments:/app/environments:ro
       - ./web:/app/web:ro
-    command: [manage.py, runserver, 0.0.0.0:8000]
+    command: [manage.py, runserver, "0.0.0.0:8000"]
   collectstatic:
     # Collect static files for prod serving
     image: rl-arena
