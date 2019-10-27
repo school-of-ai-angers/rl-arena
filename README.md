@@ -78,6 +78,7 @@ It will output a JSON document with the results of the duel with the format:
 git clone https://github.com/school-of-ai-angers/rl-arena.git
 cd rl-arena
 docker build -t rl-arena .
+docker build -t rl-arena-nginx nginx
 
 # Configure env
 cp example.env .env
@@ -103,7 +104,5 @@ docker-compose up -d web builder publisher smoke_tester tournament_manager duel_
 Inside the nginx container `docker-compose exec nginx bash`:
 
 ```sh
-apt-get update
-apt-get install -y certbot python-certbot-nginx
 certbot --nginx --register-unsafely-without-email
 ```

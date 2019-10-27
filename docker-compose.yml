@@ -193,7 +193,7 @@ services:
     command: [-m, duel_runner.main]
   nginx:
     # Nginx proxy
-    image: nginx:1.17
+    image: rl-arena-nginx
     restart: always
     ports:
       - 80:80
