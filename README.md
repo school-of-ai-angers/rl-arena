@@ -67,3 +67,8 @@ It will output a JSON document with the results of the duel with the format:
     }]
 }
 ```
+
+## Deployment
+
+* migrations
+* static

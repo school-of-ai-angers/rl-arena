@@ -15,9 +15,4 @@ echo === Migrate DB ===
 docker-compose run --rm -T migrate
 
 echo === Main Django app ===
-docker-compose up -d builder smoke_tester tournament_manager duel_runner
-docker-compose run --publish 8000:8000 \
-    --volume "$PWD/builder:/app/builder:ro" \
-    --volume "$PWD/core:/app/core:ro" \
-    --volume "$PWD/web:/app/web:ro" \
-    --rm -T web
+docker-compose up builder smoke_tester tournament_manager duel_runner web-dev

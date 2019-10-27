@@ -10,6 +10,7 @@ dependencies:
   - markdown=3.1.1
   - numpy=1.17.2
   - django-crispy-forms=1.8.0
+  - gunicorn=19.9.0
   - pip:
       - pyyaml==5.1.2
       - docker-compose==1.24.1
