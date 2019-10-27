@@ -1,6 +1,6 @@
 # Reinforced Learning Arena
 
-A platform to confront different players in multiple two-player games, like Tic-tac-toe and Quarto.
+A platform to confront in multiple two-player games agents trained with reinforcement learning.
 
 This project is a joint venture between the School of AI [in Angers](https://www.meetup.com/Angers-School-of-AI/) and in [Le Mans](https://www.meetup.com/Le-Mans-School-of-AI/), France to explore Reinforcement Learning in an engaging and dynamic setup.
 For that, we've decided to setup this arena where attendees can submit their own competitors and the system will make them battle against each other to decide who's the best!
