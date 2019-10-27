@@ -36,7 +36,7 @@ class Environment(BaseEnvironment):
         - the list of valid actions
         """
         # Play
-        assert self.board[action] == -1
+        assert self.board[action] == -1, 'Invalid action'
         self.board[action] = self.player
 
         # Check end of game

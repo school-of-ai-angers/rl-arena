@@ -46,6 +46,7 @@ services:
       - POSTGRES_USER=postgres
       - DJANGO_SETTINGS_MODULE=web.settings
       - DEBUG=1
+      - ALLOWED_HOSTS=localhost
     ports:
       - 8000:8000
     volumes:
@@ -71,6 +72,21 @@ services:
     volumes:
       - ./data/static:/app/data/static
     command: [manage.py, collectstatic, --clear, --noinput]
+  import_environments:
+    # Command used to update environments definition
+    image: rl-arena
+    environment:
+      - POSTGRES_PASSWORD
+      - SUPERUSER_USERNAME
+      - SUPERUSER_EMAIL
+      - SUPERUSER_PASSWORD
+      - DJANGO_SECRET_KEY
+      - POSTGRES_HOST=db
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - DJANGO_SETTINGS_MODULE=environments.import
+      - DEBUG=1
+    command: [-m, environments.import]
   #
   # Main services
   #

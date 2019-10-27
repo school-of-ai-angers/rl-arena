@@ -1,3 +1,4 @@
+from environments.base_environment import BaseEnvironment
 import numpy as np
 
 rows = [np.arange(4) + 4*l for l in range(4)]
@@ -5,7 +6,7 @@ columns = [np.arange(16, step=4) + l for l in range(4)]
 diagonals = [np.array([0, 5, 10, 15]), np.array([3, 6, 9, 12])]
 
 
-class Environment:
+class Environment(BaseEnvironment):
 
     """
     Pieces :
