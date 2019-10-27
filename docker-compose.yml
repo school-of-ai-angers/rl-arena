@@ -102,7 +102,7 @@ services:
       - 8000:8000
     volumes:
       - ./data/media:/app/data/media
-    entrypoint: [gunicorn, -b, 0.0.0.0:8000, web.wsgi]
+    entrypoint: [gunicorn, -b, "0.0.0.0:8000", web.wsgi]
   builder:
     # Worker service that builds Docker images for the submissions
     image: rl-arena
