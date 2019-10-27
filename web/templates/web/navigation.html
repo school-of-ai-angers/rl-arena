@@ -15,7 +15,7 @@
             <a href="{% url 'logout' %}" class="ml-2 btn btn-secondary">Logout</a>
         {% else %}
             <a href="{% url 'login' %}?next={{ full_path | urlencode }}" class="btn btn-primary">Login</a>
-            <a href="{% url 'create_account' %}" class="btn btn-secondary">Create account</a></span>
+            <a href="{% url 'create_account' %}" class="btn btn-secondary">Create account</a>
         {% endif %}
         <a href="https://github.com/school-of-ai-angers/rl-arena" class="btn btn-secondary" target="_blank">View on GitHub</a>
     </span>
