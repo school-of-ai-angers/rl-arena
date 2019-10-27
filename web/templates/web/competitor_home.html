@@ -4,7 +4,7 @@
 {% block content %}
 <h1>Competitor {{ competitor.name }} - <span class="badge badge-info">v{{ competitor.last_version }}</span></h1>
 
-<p><span class="text-muted">by <a href="{{ competitor.submitter.get_absolute_url }}">{{ competitor.submitter.username }}</a></p>
+<p><span class="text-muted">by <a href="{{ competitor.submitter.get_absolute_url }}">{{ competitor.submitter.username }}</a> ({{ competitor.submitter.team }})</p>
 
 <table class="table table-striped">
     <thead class="thead-dark">

@@ -43,6 +43,7 @@ services:
       - POSTGRES_PASSWORD
       - DJANGO_SECRET_KEY
       - INVITATION_CODE
+      - TEAMS
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres

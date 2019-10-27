@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Performance of {{ competitor.name }} - <span class="badge badge-info">v{{ revision.version_number }}</span> on edition {{ tournament.edition }}</h1>
 
-<p><span class="text-muted">by <a href="{{ competitor.submitter.get_absolute_url }}">{{ competitor.submitter.username }}</a></p>
+<p><span class="text-muted">by <a href="{{ competitor.submitter.get_absolute_url }}">{{ competitor.submitter.username }}</a> ({{ competitor.submitter.team }})</p>
 
 <ul>
     <li><span class="font-weight-bold">Ranking</span>: {{ participant.ranking }}</li>
@@ -41,7 +41,7 @@
                     </a>
                 </th>
                 <td>
-                    by <a href="{{ competitor.submitter.get_absolute_url }}">{{ competitor.submitter.username }}</a>
+                    by <a href="{{ competitor.submitter.get_absolute_url }}">{{ competitor.submitter.username }}</a> ({{ competitor.submitter.team }})
                 </td>
             {% endwith %}
             <td>

@@ -54,7 +54,7 @@
                         </a>
                     </td>
                     <td>
-                        <a href="{{ competitor.submitter.get_absolute_url }}">{{ competitor.submitter.username }}</a>
+                        <a href="{{ competitor.submitter.get_absolute_url }}">{{ competitor.submitter.username }}</a> ({{ competitor.submitter.team }})
                     </td>
                 {% endwith %}
                 <td>{{ participant.points }}</td>

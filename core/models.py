@@ -63,6 +63,7 @@ class User(AbstractUser):
         max_length=100, blank=True,
         validators=[UnicodeUsernameValidator],
         help_text='Your GitHub username if you have one and want to link to it')
+    team = models.CharField(max_length=100, blank=True)
 
     # User email for login, since it is much easier to remember
     USERNAME_FIELD = 'email'

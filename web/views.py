@@ -66,7 +66,9 @@ def environment_home(request, env, tournament=None):
 
     if request.method == 'POST' and request.user.is_authenticated:
         # Handle new competitor submission
-        form = NewCompetitorForm(request.POST, request.FILES)
+        data = request.POST.copy()
+        data['environment'] = env
+        form = NewCompetitorForm(data, request.FILES)
         if not form.is_valid():
             messages.error(
                 request, 'Failed to submit form, please check error messages')
