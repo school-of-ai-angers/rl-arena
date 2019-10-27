@@ -26,6 +26,7 @@ Each implementation resides inside its own directory in `environments`, providin
 * data: contains all user data, its subdirectories are mounted inside the multiple containers
 * duel_runner: launch and monitors the duels that are scheduled as part of the tournaments
 * environments: implement the different games
+* example_players: a collect of basic players, mostly used for testing
 * nginx: Nginx webproxy configuration
 * publisher: responsible for pushing public submissions to the repo [rl-arena-public-submissions](https://github.com/school-of-ai-angers/rl-arena-public-submissions)
 * run_duel: given two Docker images and the environment name, runs multiple matches and collect the results

@@ -1,8 +1,9 @@
-# Sample player class (for tests)
 import numpy as np
 
 
 class Player:
+    """ Play the first move """
+
     def __init__(self, train_mode):
         """
         :param train_mode: bool
@@ -15,7 +16,7 @@ class Player:
         :param valid_actions: np.array 1D
         :returns: float
         """
-        return np.random.choice(valid_actions)
+        return valid_actions[0]
 
     def step(self, state, valid_actions, prev_reward):
         """
@@ -24,7 +25,7 @@ class Player:
         :param prev_reward: float
         :returns: float
         """
-        return np.random.choice(valid_actions)
+        return valid_actions[0]
 
     def end(self, state, prev_reward):
         """
