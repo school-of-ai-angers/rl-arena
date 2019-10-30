@@ -4,6 +4,7 @@ WORKDIR /app
 
 # Conda dependencies
 COPY environment.yml .
+RUN sed -i 's/\r$//' environment.yml
 RUN conda env create
 RUN echo "conda activate $(head -1 /app/environment.yml | cut -d' ' -f2)" >> ~/.bashrc
 ENV PATH /opt/conda/envs/$(head -1 /app/environment.yml | cut -d' ' -f2)/bin:$PATH
