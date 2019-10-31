@@ -80,6 +80,9 @@ It will output a JSON document with the results of the duel with the format:
 4. Inside the recently-created Droplet, execute the following instructions. Note: this script should be executed manually, as there are some interactive steps!
 
     ```sh
+    # Prepare service account keys
+    nano keys/gcp.json # Paste JSON key
+
     # Build source
     git clone https://github.com/school-of-ai-angers/rl-arena.git
     cd rl-arena
