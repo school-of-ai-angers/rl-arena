@@ -123,6 +123,8 @@ services:
     environment:
       - POSTGRES_PASSWORD
       - DJANGO_SECRET_KEY
+      - PLAYER_IMAGE_NAME
+      - PLAYER_IMAGE_PUSH
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres

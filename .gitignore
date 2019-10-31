@@ -6,3 +6,4 @@ secrets.tfvars
 terraform.tfstate.backup
 terraform.tfstate
 .env
+gcp-token.json

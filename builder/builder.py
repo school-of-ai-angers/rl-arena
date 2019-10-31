@@ -9,6 +9,9 @@ from zipfile import ZipFile
 import traceback
 import uuid
 
+image_base_name = os.environ['PLAYER_IMAGE_NAME']
+push_image = bool(int(os.environ['PLAYER_IMAGE_PUSH']))
+
 
 class BuilderController(TaskController):
     Model = Revision
@@ -47,11 +50,18 @@ class BuilderController(TaskController):
 
             # Build image
             image_tag = str(uuid.uuid4())
-            image_name = f'rl-arena-player:{image_tag}'
+            image_name = f'{image_base_name}:{image_tag}'
             image_result, image_log = _run_shell(
                 ['docker', 'build', '--tag', image_name, tmpdir])
             if image_result != 0:
                 return self.TaskResult.error('Image failed to be built', image_log)
+
+            if push_image:
+                # Push image
+                push_result, push_log = _run_shell(['docker', 'push', image_name])
+                if push_result != 0:
+                    image_log += '\n---\n' + push_log
+                    return self.TaskResult.error('Image failed to be pushed', image_log)
 
         task.image_name = image_name
         return self.TaskResult.success(image_log)
