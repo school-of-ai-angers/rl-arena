@@ -3,17 +3,16 @@ from django.core.files.storage import default_storage
 from core.models import Duel
 import os
 from django.conf import settings
-import subprocess
-import shutil
 import traceback
 import uuid
 import json
 from gzip import decompress
+from duel_runner.run_duel import run_duel
 
 result_dir = 'duel_results'
 
 
-class DuelRunnerController(TaskController):
+class TournamentController(TaskController):
     Model = Duel
     fields_prefix = ''
     scheduled_state = Duel.SCHEDULED
@@ -23,19 +22,18 @@ class DuelRunnerController(TaskController):
     log_dir = 'duel_logs'
 
     def find_next_task(self):
-        return Duel.objects.filter(state=Duel.SCHEDULED).order_by('created_at').first()
+        return Duel.objects.select_for_update(skip_locked=True) \
+            .filter(state=Duel.SCHEDULED).order_by('created_at').first()
 
     def execute_task(self, task):
         # Run duel
         environment = task.tournament.environment
         output_file = f'{result_dir}/{uuid.uuid4()}.json.gz'
-        status, duel_logs = _run_shell([
-            './run_duel.sh',
-            'tournament_duel',
+        status, duel_logs = run_duel(
             task.player_1.image_name,
             task.player_2.image_name,
             environment.slug,
-            output_file])
+            output_file)
         if status != 0:
             return self.TaskResult.error('Internal error', duel_logs)
 
@@ -62,13 +60,3 @@ class DuelRunnerController(TaskController):
         except Exception as e:
             return self.TaskResult.error(str(e), duel_logs)
         return self.TaskResult.success(duel_logs)
-
-
-def main():
-    DuelRunnerController().run()
-
-
-def _run_shell(cmd):
-    result = subprocess.run(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
-    return result.returncode, result.stdout.decode('utf-8')

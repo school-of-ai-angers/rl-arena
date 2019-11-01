@@ -15,4 +15,4 @@ echo === Migrate DB ===
 docker-compose run --rm -T migrate
 
 echo === Main Django app ===
-docker-compose up builder smoke_tester tournament_manager duel_runner web-dev
+docker-compose up builder tournament_manager duel_runner web-dev

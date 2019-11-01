@@ -24,13 +24,12 @@ Each implementation resides inside its own directory in `environments`, providin
 * builder: responsible for preparing a Docker image wrapping each submission
 * core: main Django settings, database models and migrations
 * data: contains all user data, its subdirectories are mounted inside the multiple containers
-* duel_runner: launch and monitors the duels that are scheduled as part of the tournaments
+* duel_runner: launch and monitors the duels that are scheduled as part of the tournaments and also tests whether a given submission is valid by making it play against itself multiple times without any rule violation
 * environments: implement the different games
 * example_players: a collect of basic players, mostly used for testing
 * nginx: Nginx webproxy configuration
 * publisher: responsible for pushing public submissions to the repo [rl-arena-public-submissions](https://github.com/school-of-ai-angers/rl-arena-public-submissions)
 * run_duel: given two Docker images and the environment name, runs multiple matches and collect the results
-* smoke_tester: tests whether a given submission is valid by making it play against itself multiple times without any rule violation
 * terraform: controls the infrastructure deployment on DigitalOcean
 * tournament_manager: launch and monitors running tournaments, aggregating results and calculating rankings
 * web: main Django app with all the user-facing web platform
@@ -107,7 +106,7 @@ It will output a JSON document with the results of the duel with the format:
     docker-compose run --rm collectstatic
 
     # Start other services
-    docker-compose up -d web builder publisher smoke_tester tournament_manager duel_runner
+    docker-compose up -d web builder publisher tournament_manager duel_runner
 
     # Generate certificate
     docker-compose up -d nginx

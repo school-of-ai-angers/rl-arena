@@ -160,24 +160,6 @@ services:
       - ./data/publish_repo:/app/data/publish_repo
       - ./data/publish_keys:/app/data/publish_keys:ro
     command: [-m, publisher.main]
-  smoke_tester:
-    # Worker service that test recently-built Docker images for the submissions
-    image: rl-arena
-    restart: always
-    environment:
-      - POSTGRES_PASSWORD
-      - DJANGO_SECRET_KEY
-      - GS_BUCKET_NAME
-      - POSTGRES_HOST=db
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - DJANGO_SETTINGS_MODULE=smoke_tester.settings
-      - LOG_LEVEL=INFO
-      - DEBUG=0
-    volumes:
-      # Allows to run docker from inside the container
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: [-m, smoke_tester.main]
   tournament_manager:
     # Worker service that starts and keep track of tournaments
     image: rl-arena
@@ -201,6 +183,7 @@ services:
       - POSTGRES_PASSWORD
       - DJANGO_SECRET_KEY
       - GS_BUCKET_NAME
+      - DUEL_PARALLELISM
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
