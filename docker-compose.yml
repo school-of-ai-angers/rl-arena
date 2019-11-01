@@ -178,12 +178,13 @@ services:
   duel_runner:
     # Worker service that executes duels
     image: rl-arena
-    restart: always
+    restart: on-failure
     environment:
       - POSTGRES_PASSWORD
       - DJANGO_SECRET_KEY
       - GS_BUCKET_NAME
       - DUEL_PARALLELISM
+      - DO_TAG=${DO_TAG:-}
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
