@@ -102,6 +102,8 @@ services:
       - POSTGRES_PASSWORD
     volumes:
       - ./data/${POSTGRES_DIR:-db}:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
   web:
     # Web service in prod mode
     image: rl-arena

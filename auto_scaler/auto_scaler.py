@@ -8,6 +8,7 @@ from django.db import models
 import math
 from django.utils import timezone
 import uuid
+import requests
 
 sleep_time = timedelta(seconds=60)
 avg_over = 10
@@ -21,6 +22,7 @@ region = os.environ['DO_REGION']
 size = os.environ['DO_SIZE']
 image = os.environ['DO_IMAGE']
 ssh_keys = os.environ['DO_SSH_KEYS']
+private_ip = ''
 
 logger = logging.getLogger(__name__)
 duel_parallelism = int(os.environ['DUEL_PARALLELISM'])
@@ -30,6 +32,11 @@ do_manager = digitalocean.Manager(token=token)
 
 
 def main():
+    # Get my private IP
+    global private_ip
+    private_ip = requests.get('http://169.254.169.254/metadata/v1/interfaces/private/0/ipv4/address').text
+    logger.info(f'My private ip is {private_ip}')
+
     while True:
         logger.info('Start cycle')
 
@@ -132,10 +139,10 @@ def create_n(n):
         name = f'{worker_tag}-{uuid.uuid4()}'
         worker = TaskWorker.objects.create(tag=name)
         user_data = f'''#!/bin/bash -e
-        cd rl-arena
+        cd /root/rl-arena
         git pull
         docker build -t rl-arena .
-        docker-compose up -d -e DO_TAG="{name}" duel_runner
+        DO_TAG="{name}" POSTGRES_HOST="{private_ip}" docker-compose up -d duel_runner
         '''
         droplet = digitalocean.Droplet(
             token=token,
