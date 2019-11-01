@@ -25,7 +25,7 @@ resource "digitalocean_droplet" "rl-arena" {
   size       = "s-4vcpu-8gb"
   backups    = true
   monitoring = false
-  ssh_keys   = ["d3:5f:69:0e:50:15:2e:b3:49:fd:92:d0:25:a8:c6:36"]
+  ssh_keys   = ["d3:5f:69:0e:50:15:2e:b3:49:fd:92:d0:25:a8:c6:36", "cc:5e:c0:80:13:c1:f5:7d:10:d6:db:5c:9b:05:06:7d"]
 }
 
 resource "digitalocean_floating_ip" "rl-arena" {

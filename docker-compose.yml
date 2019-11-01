@@ -195,6 +195,29 @@ services:
       # Allows to run docker from inside the container
       - /var/run/docker.sock:/var/run/docker.sock
     command: [-m, duel_runner.main]
+  auto_scaler:
+    # Worker service that scale digital ocean worker droplets
+    image: rl-arena
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD
+      - DJANGO_SECRET_KEY
+      - GS_BUCKET_NAME
+      - DO_TOKEN
+      - DUEL_PARALLELISM
+      - MAX_TASK_WORKERS
+      - DO_WORKER_TAG
+      - DO_REGION
+      - DO_SIZE
+      - DO_IMAGE
+      - DO_SSH_KEYS
+      - POSTGRES_HOST=db
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - DJANGO_SETTINGS_MODULE=auto_scaler.settings
+      - LOG_LEVEL=INFO
+      - DEBUG=0
+    command: [-m, auto_scaler.main]
   nginx:
     # Nginx proxy
     image: rl-arena-nginx
