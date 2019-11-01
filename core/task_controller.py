@@ -35,6 +35,12 @@ class TaskController:
     # The dir into which to save the logs
     log_dir = None
 
+    # Whether to stop any further task search
+    stop = False
+
+    # The TaskWorker instance (if any) that runs this task
+    task_worker = None
+
     class TaskResult:
         """
         A simple wrapper for representing whether the task failed or completed
@@ -70,7 +76,7 @@ class TaskController:
 
     def run(self):
         # Continously look for tasks to run
-        while True:
+        while not self.stop:
             # Timeout previous tasks
             timeouts = self.Model.objects.filter(**{
                 f'{self.fields_prefix}state': self.running_state,
@@ -95,6 +101,8 @@ class TaskController:
                             self.running_state)
                     setattr(
                         task, f'{self.fields_prefix}started_at', timezone.now())
+                    if self.task_worker:
+                        setattr(task, f'{self.fields_prefix}task_worker', self.task_worker)
                     task.save()
 
             # Run selected task

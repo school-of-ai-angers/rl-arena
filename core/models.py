@@ -116,6 +116,32 @@ def zip_file_path(instance, filename):
     return f'revisions/{uuid.uuid4()}.zip'
 
 
+class TaskWorker(models.Model):
+    """ Represent a cloud instance that will run smoke tests and tournament duels """
+    tag = models.CharField(max_length=100, unique=True)
+
+    CREATING = 'CREATING'
+    READY = 'READY'
+    STOPPING = 'STOPPING'
+    STOPPED = 'STOPPED'
+    DESTROYED = 'DESTROYED'
+    FAILED = 'FAILED'
+    state = models.CharField(max_length=100, choices=_choices_with([
+        CREATING,
+        READY,
+        STOPPING,
+        STOPPED,
+        DESTROYED,
+        FAILED]), default=CREATING)
+
+    creating_at = models.DateTimeField(auto_now_add=True)
+    ready_at = models.DateTimeField(null=True)
+    stopping_at = models.DateTimeField(null=True)
+    stopped_at = models.DateTimeField(null=True)
+    destroyed_at = models.DateTimeField(null=True)
+    failed_at = models.DateTimeField(null=True)
+
+
 class Revision(models.Model):
     """ Represents each submitted code, as part of a competitor lineage """
     # The competitor family (PROTECT because this entity has external persistent state)
@@ -190,6 +216,8 @@ class Revision(models.Model):
     test_error_msg = models.CharField(blank=True, max_length=200)
     # Smoke test logs
     test_logs = models.FileField(null=True)
+    # Which worker executed this test
+    test_task_worker = models.ForeignKey(TaskWorker, models.CASCADE, null=True)
 
     class Meta:
         constraints = [
@@ -285,6 +313,9 @@ class Duel(models.Model):
     ended_at = models.DateTimeField(null=True)
     logs = models.FileField(null=True)
     results = models.FileField(null=True)
+
+    # Which worker executed this duel
+    task_worker = models.ForeignKey(TaskWorker, models.CASCADE, null=True)
 
     # Duel results
     ERROR = 'ERROR'
