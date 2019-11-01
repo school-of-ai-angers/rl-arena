@@ -25,7 +25,8 @@ ssh_keys = os.environ['DO_SSH_KEYS']
 logger = logging.getLogger(__name__)
 duel_parallelism = int(os.environ['DUEL_PARALLELISM'])
 max_task_workers = int(os.environ['MAX_TASK_WORKERS'])
-do_manager = digitalocean.Manager(token=os.environ['DO_TOKEN'])
+token = os.environ['DO_TOKEN']
+do_manager = digitalocean.Manager(token=token)
 
 
 def main():
@@ -137,6 +138,7 @@ def create_n(n):
         docker-compose up -d -e DO_TAG="{name}" duel_runner
         '''
         droplet = digitalocean.Droplet(
+            token=token,
             name=name,
             region=region,
             size=size,
