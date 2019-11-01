@@ -171,8 +171,7 @@ class Revision(models.Model):
     # Docker image name and tag
     image_name = models.CharField(blank=True, max_length=200)
     # Docker build logs
-    image_logs = models.FilePathField(
-        null=True, path=MEDIA_ROOT+'revision_image_logs/')
+    image_logs = models.FileField(null=True)
 
     # Smoke testing state
     TEST_SCHEDULED = 'TEST_SCHEDULED'
@@ -191,8 +190,7 @@ class Revision(models.Model):
     # Main reason for the failed smoke test
     test_error_msg = models.CharField(blank=True, max_length=200)
     # Smoke test logs
-    test_logs = models.FilePathField(
-        null=True, path=MEDIA_ROOT+'revision_test_logs/')
+    test_logs = models.FileField(null=True)
 
     class Meta:
         constraints = [
@@ -286,8 +284,8 @@ class Duel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True)
     ended_at = models.DateTimeField(null=True)
-    logs = models.FilePathField(null=True, path=MEDIA_ROOT+'duel_logs/')
-    results = models.FilePathField(null=True, path=MEDIA_ROOT+'duel_results/')
+    logs = models.FileField(null=True)
+    results = models.FileField(null=True)
 
     # Duel results
     ERROR = 'ERROR'

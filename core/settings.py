@@ -69,3 +69,7 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+# Use GCS
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = os.environ['GS_BUCKET_NAME']

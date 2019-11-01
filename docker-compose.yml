@@ -9,6 +9,7 @@ services:
     environment:
       - POSTGRES_PASSWORD
       - DJANGO_SECRET_KEY
+      - GS_BUCKET_NAME
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
@@ -26,6 +27,7 @@ services:
       - SUPERUSER_EMAIL
       - SUPERUSER_PASSWORD
       - DJANGO_SECRET_KEY
+      - GS_BUCKET_NAME
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
@@ -41,6 +43,7 @@ services:
       - DJANGO_SECRET_KEY
       - INVITATION_CODE
       - TEAMS
+      - GS_BUCKET_NAME
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
@@ -64,6 +67,7 @@ services:
       - DJANGO_SECRET_KEY
       - INVITATION_CODE
       - TEAMS
+      - GS_BUCKET_NAME
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
@@ -81,6 +85,7 @@ services:
       - SUPERUSER_EMAIL
       - SUPERUSER_PASSWORD
       - DJANGO_SECRET_KEY
+      - GS_BUCKET_NAME
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
@@ -108,6 +113,7 @@ services:
       - INVITATION_CODE
       - TEAMS
       - ALLOWED_HOSTS
+      - GS_BUCKET_NAME
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
@@ -125,6 +131,7 @@ services:
       - DJANGO_SECRET_KEY
       - PLAYER_IMAGE_NAME
       - PLAYER_IMAGE_PUSH
+      - GS_BUCKET_NAME
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
@@ -145,6 +152,7 @@ services:
       - DJANGO_SECRET_KEY
       - PUBLISHER_REMOTE
       - PUBLISHER_WEB_URL
+      - GS_BUCKET_NAME
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
@@ -165,6 +173,7 @@ services:
       - POSTGRES_PASSWORD
       - DJANGO_SECRET_KEY
       - HOST_CWD
+      - GS_BUCKET_NAME
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
@@ -183,6 +192,7 @@ services:
     environment:
       - POSTGRES_PASSWORD
       - DJANGO_SECRET_KEY
+      - GS_BUCKET_NAME
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
@@ -198,6 +208,7 @@ services:
       - POSTGRES_PASSWORD
       - DJANGO_SECRET_KEY
       - HOST_CWD
+      - GS_BUCKET_NAME
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres

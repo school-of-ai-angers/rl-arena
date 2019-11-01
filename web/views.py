@@ -209,22 +209,21 @@ def _get_fully_visible_revision(request, env, competitor, revision):
     return get_object_or_404(Revision, competitor=competitor, version_number=revision)
 
 
-def _serve_file(file_path, download_name, content_type):
+def _serve_file(file, download_name, content_type):
     """
-    :param file_path: str
+    :param file: File
     :param content_type: str
     :returns" HttpResponse
     """
-    wrapper = FileWrapper(open(file_path, 'rb'))
-    response = HttpResponse(wrapper, content_type=content_type)
+    response = HttpResponse(file.chunks(), content_type=content_type)
     response['Content-Disposition'] = f'attachment; filename={download_name}'
-    response['Content-Length'] = os.path.getsize(file_path)
+    response['Content-Length'] = file.size
     return response
 
 
 def revision_source_download(request, env, competitor, revision):
     revision = _get_fully_visible_revision(request, env, competitor, revision)
-    return _serve_file(revision.zip_file.path, 'revision.zip', 'application/zip')
+    return _serve_file(revision.zip_file, 'revision.zip', 'application/zip')
 
 
 def revision_image_logs_download(request, env, competitor, revision):

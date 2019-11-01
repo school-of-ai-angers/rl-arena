@@ -22,7 +22,7 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     apt-get -q install -y google-cloud-sdk && \
     gcloud auth activate-service-account --key-file keys/gcp.json && \
     gcloud auth configure-docker
-
+ENV GOOGLE_APPLICATION_CREDENTIALS=keys/gcp.json
 
 WORKDIR /app
 

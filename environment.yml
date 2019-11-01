@@ -14,3 +14,4 @@ dependencies:
   - pip:
       - pyyaml==5.1.2
       - docker-compose==1.24.1
+      - django-storages[google]==1.7.2

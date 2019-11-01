@@ -6,6 +6,7 @@ from django.utils import timezone
 import os
 import uuid
 import traceback
+from django.core.files.base import ContentFile
 
 logger = logging.getLogger(__name__)
 
@@ -65,9 +66,6 @@ class TaskController:
         raise NotImplementedError
 
     def run(self):
-        if self.log_dir:
-            os.makedirs(self.log_dir, exist_ok=True)
-
         # Continously look for tasks to run
         while True:
             # Timeout previous tasks
@@ -111,22 +109,18 @@ class TaskController:
                             self.failed_state)
                     setattr(
                         task, f'{self.fields_prefix}error_msg', result.error_msg[:200])
-                setattr(task, f'{self.fields_prefix}logs',
-                        self.create_log_file(result.task_log))
+                self.create_log_file(task, result.task_log)
                 setattr(task, f'{self.fields_prefix}ended_at', timezone.now())
                 task.save()
             else:
                 time.sleep(self.idle_sleep.total_seconds())
 
-    def create_log_file(self, log_str):
+    def create_log_file(self, task, log_str):
         """
         :param log_str: str or None
-        :returns str or None: the file path
         """
         if log_str is None:
-            return None
+            return
 
-        log_path = os.path.join(self.log_dir, str(uuid.uuid4())+'.log')
-        with open(log_path, 'w') as fp:
-            fp.write(log_str)
-        return log_path
+        field_file = getattr(task, f'{self.fields_prefix}logs')
+        field_file.save(f'{self.log_dir}/{uuid.uuid4()}.log', ContentFile(bytes(log_str, 'utf-8')))

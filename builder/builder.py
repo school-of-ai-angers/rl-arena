@@ -20,7 +20,7 @@ class BuilderController(TaskController):
     running_state = Revision.IMAGE_RUNNING
     completed_state = Revision.IMAGE_COMPLETED
     failed_state = Revision.IMAGE_FAILED
-    log_dir = os.path.join(settings.MEDIA_ROOT, 'revision_image_logs')
+    log_dir = 'revision_image_logs'
 
     def find_next_task(self):
         return Revision.objects.filter(
@@ -31,7 +31,7 @@ class BuilderController(TaskController):
         with tempfile.TemporaryDirectory() as tmpdir:
             try:
                 # Load ZIP file
-                submission = ZipFile(task.zip_file.path)
+                submission = ZipFile(task.zip_file.open('rb'))
 
                 # Unzip
                 submission.extractall(tmpdir)
