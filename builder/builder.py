@@ -31,10 +31,11 @@ class BuilderController(TaskController):
         with tempfile.TemporaryDirectory() as tmpdir:
             try:
                 # Load ZIP file
-                submission = ZipFile(task.zip_file.open('rb'))
+                with task.zip_file.open('rb') as fp:
+                    submission = ZipFile(fp)
 
-                # Unzip
-                submission.extractall(tmpdir)
+                    # Unzip
+                    submission.extractall(tmpdir)
             except:
                 return self.TaskResult.error('Failed to unzip provided file', traceback.format_exc())
 

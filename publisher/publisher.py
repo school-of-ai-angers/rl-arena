@@ -34,8 +34,9 @@ class PublisherController(TaskController):
         with tempfile.TemporaryDirectory() as tmpdir:
             # Unzip
             try:
-                submission = ZipFile(task.zip_file.open('rb'))
-                submission.extractall(tmpdir)
+                with task.zip_file.open('rb') as fp:
+                    submission = ZipFile(fp)
+                    submission.extractall(tmpdir)
             except:
                 return self.TaskResult.error('Failed to unzip provided file', traceback.format_exc())
 
