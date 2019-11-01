@@ -20,7 +20,7 @@ class PublisherController(TaskController):
     running_state = Revision.PUBLISH_RUNNING
     completed_state = Revision.PUBLISH_COMPLETED
     failed_state = Revision.PUBLISH_FAILED
-    log_dir = os.path.join(settings.MEDIA_ROOT, 'revision_publish_logs')
+    log_dir = 'revision_publish_logs'
 
     def find_next_task(self):
         return Revision.objects \

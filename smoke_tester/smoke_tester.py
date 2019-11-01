@@ -9,8 +9,7 @@ import uuid
 import json
 from gzip import GzipFile
 
-result_dir = os.path.join(settings.MEDIA_ROOT, 'revision_test_results')
-host_cwd = os.environ['HOST_CWD']
+result_dir = 'revision_test_results'
 
 
 class SmokeTesterController(TaskController):
@@ -20,7 +19,7 @@ class SmokeTesterController(TaskController):
     running_state = Revision.TEST_RUNNING
     completed_state = Revision.TEST_COMPLETED
     failed_state = Revision.TEST_FAILED
-    log_dir = os.path.join(settings.MEDIA_ROOT, 'revision_test_logs')
+    log_dir = 'revision_test_logs'
 
     def find_next_task(self):
         return Revision.objects.filter(
@@ -31,7 +30,7 @@ class SmokeTesterController(TaskController):
         environment = task.competitor.environment
         output_file = f'{result_dir}/{uuid.uuid4()}.json.gz'
         status, duel_logs = _run_shell(
-            ['./run_duel.sh', 'smoke_test_duel', task.image_name, task.image_name, environment.slug, host_cwd, output_file])
+            ['./run_duel.sh', 'smoke_test_duel', task.image_name, task.image_name, environment.slug, output_file])
         if status != 0:
             return self.TaskResult.error('Internal error', duel_logs)
 
@@ -50,7 +49,6 @@ class SmokeTesterController(TaskController):
 
 
 def main():
-    os.makedirs(result_dir, exist_ok=True)
     SmokeTesterController().run()
 
 

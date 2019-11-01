@@ -9,8 +9,7 @@ import uuid
 import json
 from gzip import GzipFile
 
-result_dir = os.path.join(settings.MEDIA_ROOT, 'duel_results')
-host_cwd = os.environ['HOST_CWD']
+result_dir = 'duel_results'
 
 
 class DuelRunnerController(TaskController):
@@ -20,7 +19,7 @@ class DuelRunnerController(TaskController):
     running_state = Duel.RUNNING
     completed_state = Duel.COMPLETED
     failed_state = Duel.FAILED
-    log_dir = os.path.join(settings.MEDIA_ROOT, 'duel_logs')
+    log_dir = 'duel_logs'
 
     def find_next_task(self):
         return Duel.objects.filter(state=Duel.SCHEDULED).order_by('created_at').first()
@@ -35,7 +34,6 @@ class DuelRunnerController(TaskController):
             task.player_1.image_name,
             task.player_2.image_name,
             environment.slug,
-            host_cwd,
             output_file])
         if status != 0:
             return self.TaskResult.error('Internal error', duel_logs)
@@ -65,7 +63,6 @@ class DuelRunnerController(TaskController):
 
 
 def main():
-    os.makedirs(result_dir, exist_ok=True)
     DuelRunnerController().run()
 
 

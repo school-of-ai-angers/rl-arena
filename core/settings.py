@@ -40,10 +40,6 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 
 AUTH_USER_MODEL = 'core.User'
 
-# Media
-
-MEDIA_ROOT = BASE_DIR + '/data/media/'
-
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 

@@ -53,7 +53,6 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - ./data/media:/app/data/media
       # Application code
       - ./core:/app/core:ro
       - ./environments:/app/environments:ro
@@ -119,8 +118,6 @@ services:
       - POSTGRES_USER=postgres
       - DJANGO_SETTINGS_MODULE=web.settings
       - DEBUG=0
-    volumes:
-      - ./data/media:/app/data/media
     entrypoint: [gunicorn, -b, "0.0.0.0:8000", web.wsgi]
   builder:
     # Worker service that builds Docker images for the submissions
@@ -139,7 +136,6 @@ services:
       - LOG_LEVEL=INFO
       - DEBUG=0
     volumes:
-      - ./data/media:/app/data/media
       # Allows to run docker from inside the container
       - /var/run/docker.sock:/var/run/docker.sock
     command: [-m, builder.main]
@@ -161,7 +157,6 @@ services:
       - GIT_SSH_COMMAND=ssh -i /app/data/publish_keys/id_rsa
       - DEBUG=0
     volumes:
-      - ./data/media:/app/data/media
       - ./data/publish_repo:/app/data/publish_repo
       - ./data/publish_keys:/app/data/publish_keys:ro
     command: [-m, publisher.main]
@@ -172,7 +167,6 @@ services:
     environment:
       - POSTGRES_PASSWORD
       - DJANGO_SECRET_KEY
-      - HOST_CWD
       - GS_BUCKET_NAME
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
@@ -181,7 +175,6 @@ services:
       - LOG_LEVEL=INFO
       - DEBUG=0
     volumes:
-      - ./data/media:/app/data/media
       # Allows to run docker from inside the container
       - /var/run/docker.sock:/var/run/docker.sock
     command: [-m, smoke_tester.main]
@@ -207,7 +200,6 @@ services:
     environment:
       - POSTGRES_PASSWORD
       - DJANGO_SECRET_KEY
-      - HOST_CWD
       - GS_BUCKET_NAME
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
@@ -216,7 +208,6 @@ services:
       - LOG_LEVEL=INFO
       - DEBUG=0
     volumes:
-      - ./data/media:/app/data/media
       # Allows to run docker from inside the container
       - /var/run/docker.sock:/var/run/docker.sock
     command: [-m, duel_runner.main]
