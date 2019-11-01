@@ -1,4 +1,5 @@
 from core.task_controller import TaskController
+from django.core.files.storage import default_storage
 from core.models import Duel
 import os
 from django.conf import settings
@@ -7,7 +8,7 @@ import shutil
 import traceback
 import uuid
 import json
-from gzip import GzipFile
+from gzip import decompress
 
 result_dir = 'duel_results'
 
@@ -40,9 +41,10 @@ class DuelRunnerController(TaskController):
 
         # Save result
         try:
-            with GzipFile(output_file, 'r') as fp:
-                result = json.loads(fp.read().decode('utf-8'))
-            task.results = output_file
+            with default_storage.open(output_file) as fp:
+                contents = decompress(fp.read())
+                task.results = fp
+            result = json.loads(contents.decode('utf-8'))
             task.result = result['result']
             task.num_matches = result['num_matches']
             task.player_1_errors = result['player_1_errors']

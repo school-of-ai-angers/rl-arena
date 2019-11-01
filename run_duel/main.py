@@ -5,7 +5,11 @@ from run_duel.run_match import run_match
 import json
 import logging
 import os
-from gzip import GzipFile
+from gzip import compress
+from google.cloud import storage
+
+storage_client = storage.Client()
+bucket = storage_client.get_bucket(os.environ['GS_BUCKET_NAME'])
 logging.basicConfig(level=os.environ['LOG_LEVEL'])
 logger = logging.getLogger(__name__)
 
@@ -107,7 +111,7 @@ if __name__ == '__main__':
         duel_result['result'] = 'ERROR'
         duel_result['error_msg'] = str(e)
 
-    logger.info(f'Write to {output_file}')
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with GzipFile(output_file, 'w') as fp:
-        fp.write(json.dumps(duel_result).encode('utf-8'))
+    logger.info(f'Upload to {output_file}')
+    blob = bucket.blob(output_file)
+    contents = compress(json.dumps(duel_result).encode('utf-8'))
+    blob.upload_from_string(contents, 'application/gzip')

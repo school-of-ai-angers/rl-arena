@@ -15,7 +15,7 @@ from django.db import models
 import os
 import json
 from importlib import import_module
-from gzip import GzipFile
+from gzip import decompress
 
 # Accounts
 
@@ -298,8 +298,9 @@ def duel_home(request, environment, tournament, competitor_1, competitor_2, matc
 
     # Load match
     matches = []
-    with GzipFile(duel.results, 'r') as fp:
-        matches = json.loads(fp.read().decode('utf-8'))['matches']
+    with duel.results.open() as fp:
+        contents = decompress(fp.read())
+    matches = json.loads(contents.decode('utf-8'))['matches']
 
     # Prepare match links
     links_by_result = {

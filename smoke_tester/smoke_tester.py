@@ -1,4 +1,5 @@
 from core.task_controller import TaskController
+from django.core.files.storage import default_storage
 from core.models import Revision
 import os
 from django.conf import settings
@@ -7,7 +8,7 @@ import shutil
 import traceback
 import uuid
 import json
-from gzip import GzipFile
+from gzip import decompress
 
 result_dir = 'revision_test_results'
 
@@ -36,8 +37,9 @@ class SmokeTesterController(TaskController):
 
         # Check result
         try:
-            with GzipFile(output_file, 'r') as fp:
-                result = json.loads(fp.read().decode('utf-8'))
+            with default_storage.open(output_file) as fp:
+                contents = decompress(fp.read())
+            result = json.loads(contents.decode('utf-8'))
             for match in result['matches']:
                 if match['result'] == 'PLAYER_1_ERROR' or match['result'] == 'PLAYER_2_ERROR':
                     return self.TaskResult.error('Player failed with ' + match['error_msg'], duel_logs)
