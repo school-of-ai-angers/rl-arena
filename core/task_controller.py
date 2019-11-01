@@ -7,6 +7,7 @@ import os
 import uuid
 import traceback
 from django.core.files.base import ContentFile
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +56,8 @@ class TaskController:
     def find_next_task(self):
         """
         Should return a task or None
+        Use select_for_update(skip_locked=True) to allow for multiple parallel runs
+        (https://docs.djangoproject.com/en/2.2/ref/models/querysets/#select-for-update)
         """
         raise NotImplementedError
 
@@ -78,12 +81,24 @@ class TaskController:
             if timeouts > 0:
                 logger.warn(f'Timeouted {timeouts} tasks')
 
+            # Search task and set it as running
             logger.info('Search for next task')
-            task = self.find_next_task()
+            task = None
+            with transaction.atomic():
+                task = self.find_next_task()
 
+                if task:
+                    logger.info(f'Will execute task {task}')
+
+                    # Change state
+                    setattr(task, f'{self.fields_prefix}state',
+                            self.running_state)
+                    setattr(
+                        task, f'{self.fields_prefix}started_at', timezone.now())
+                    task.save()
+
+            # Run selected task
             if task:
-                logger.info(f'Will execute task {task}')
-
                 # Change state
                 setattr(task, f'{self.fields_prefix}state',
                         self.running_state)
