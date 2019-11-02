@@ -185,7 +185,7 @@ services:
       - POSTGRES_PASSWORD
       - DJANGO_SECRET_KEY
       - GS_BUCKET_NAME
-      - DUEL_PARALLELISM
+      - DUEL_PARALLELISM=${DUEL_PARALLELISM:-1}
       - DO_TAG=${DO_TAG:-}
       - POSTGRES_HOST=${POSTGRES_HOST:-db}
       - POSTGRES_NAME=postgres

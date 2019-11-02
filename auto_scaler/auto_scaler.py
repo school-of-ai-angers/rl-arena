@@ -142,7 +142,7 @@ def create_n(n):
         cd /root/rl-arena
         git pull
         docker build -t rl-arena .
-        DO_TAG="{name}" POSTGRES_HOST="{private_ip}" docker-compose up -d duel_runner
+        DO_TAG="{name}" POSTGRES_HOST="{private_ip}" DUEL_PARALLELISM="{duel_parallelism}" docker-compose up -d duel_runner
         '''
         droplet = digitalocean.Droplet(
             token=token,
