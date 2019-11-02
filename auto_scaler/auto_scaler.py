@@ -14,7 +14,7 @@ sleep_time = timedelta(seconds=60)
 avg_over = 10
 min_avg = timedelta(minutes=1)
 target_max_time = timedelta(minutes=15)
-min_lifetime = timedelta(minutes=10)
+min_lifetime = timedelta(minutes=50)
 max_lifetime = timedelta(minutes=100)
 timeout = timedelta(minutes=10)
 worker_tag = os.environ['DO_WORKER_TAG']
