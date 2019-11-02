@@ -79,12 +79,14 @@ It will output a JSON document with the results of the duel with the format:
 4. Inside the recently-created Droplet, execute the following instructions. Note: this script should be executed manually, as there are some interactive steps!
 
     ```sh
-    # Prepare service account keys
-    nano keys/gcp.json # Paste JSON key
 
     # Build source
     git clone https://github.com/school-of-ai-angers/rl-arena.git
     cd rl-arena
+
+    # Prepare service account keys
+    nano keys/gcp.json # Paste JSON key
+    
     docker build -t rl-arena .
     docker build -t rl-arena-nginx nginx
 
@@ -105,8 +107,8 @@ It will output a JSON document with the results of the duel with the format:
     # Prepare static files
     docker-compose run --rm collectstatic
 
-    # Start other services
-    docker-compose up -d web builder publisher tournament_manager duel_runner
+    # Start other services in master node
+    docker-compose up -d web builder publisher tournament_manager auto_scaler
 
     # Generate certificate
     docker-compose up -d nginx
@@ -118,5 +120,14 @@ It will output a JSON document with the results of the duel with the format:
     # Rerun nginx
     docker-compose stop nginx
     docker-compose up -d nginx
+
+    # Setup firewal
+    ufw allow 80
+    ufw allow 443
+    ufw allow in on eth1 to any port 5432 proto tcp
+
+    # Turn off and then create snapshot for worker
+    docker-compose down
+    poweroff
 
     ```
