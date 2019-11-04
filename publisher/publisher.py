@@ -8,6 +8,7 @@ import traceback
 import logging
 import os
 from django.conf import settings
+from django.urls import reverse
 logger = logging.getLogger(__name__)
 
 PUBLISHER_WEB_URL = os.environ['PUBLISHER_WEB_URL']
@@ -39,6 +40,20 @@ class PublisherController(TaskController):
                     submission.extractall(tmpdir)
             except:
                 return self.TaskResult.error('Failed to unzip provided file', traceback.format_exc())
+
+            # Rewrite big files with a warning (GitHub accepts up to 100MiB, but we will use a much lower limit of 1MiB
+            # to make sure the full repo won't too big either)
+            competitor = task.competitor
+            environment = competitor.environment
+            zip_url = reverse('revision_source_download', environment.slug, competitor.name, task.version_number)
+            for root, dirs, files in os.walk(tmpdir):
+                for name in files:
+                    file_path = os.path.join(root, name)
+                    size_MiB = os.path.getsize(file_path) / 1024 / 1024
+                    if size_MiB > 1:
+                        logger.warning(f'File {file_path} is too big ({size_MiB:.1f}MiB)')
+                        with open(file_path, 'w') as fp:
+                            fp.write(f'!!! The original file was too large !!!\nPlease find the original in\n{zip_url}')
 
             # Prepare commands
             competitor = task.competitor
