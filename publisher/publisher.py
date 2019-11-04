@@ -62,9 +62,9 @@ class PublisherController(TaskController):
             logs = ''
             for cmd in cmds:
                 status, extra_logs = _run_shell(cmd)
-                logs += extra_logs
+                logs += f'$ {cmd}\n{extra_logs}'
                 if status != 0:
-                    return self.TaskResult.error('Operation failed', logs)
+                    return self.TaskResult.error(f'Operation failed with status {status}', logs)
             _, commit = _run_shell(
                 ['git', '-C', 'data/publish_repo', 'rev-parse', 'HEAD'])
             task.publish_url = f'{PUBLISHER_WEB_URL}/blob/{commit.strip()}/{environment.slug}/{competitor.name}/player.py'
