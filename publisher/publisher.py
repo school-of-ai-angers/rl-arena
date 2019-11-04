@@ -45,7 +45,7 @@ class PublisherController(TaskController):
             # to make sure the full repo won't too big either)
             competitor = task.competitor
             environment = competitor.environment
-            zip_url = reverse('revision_source_download', environment.slug, competitor.name, task.version_number)
+            zip_url = reverse('revision_source_download', environment.slug, competitor.name, str(task.version_number))
             for root, dirs, files in os.walk(tmpdir):
                 for name in files:
                     file_path = os.path.join(root, name)
