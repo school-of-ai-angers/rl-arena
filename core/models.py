@@ -173,6 +173,8 @@ class Revision(models.Model):
     publish_ended_at = models.DateTimeField(null=True)
     # Main reason for the failed publish
     publish_error_msg = models.CharField(blank=True, max_length=200)
+    # Publish logs
+    publish_logs = models.FileField(null=True)
     # Link to GitHub sources (only present for public source code)
     publish_url = models.CharField(max_length=200, blank=True, validators=[RegexValidator(
         r'^https://github.com/')])
