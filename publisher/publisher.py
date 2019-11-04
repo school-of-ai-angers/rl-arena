@@ -43,9 +43,6 @@ class PublisherController(TaskController):
 
             # Rewrite big files with a warning (GitHub accepts up to 100MiB, but we will use a much lower limit of 1MiB
             # to make sure the full repo won't too big either)
-            competitor = task.competitor
-            environment = competitor.environment
-            zip_url = reverse('revision_source_download', environment.slug, competitor.name, str(task.version_number))
             for root, dirs, files in os.walk(tmpdir):
                 for name in files:
                     file_path = os.path.join(root, name)
@@ -53,7 +50,7 @@ class PublisherController(TaskController):
                     if size_MiB > 1:
                         logger.warning(f'File {file_path} is too big ({size_MiB:.1f}MiB)')
                         with open(file_path, 'w') as fp:
-                            fp.write(f'!!! The original file was too large !!!\nPlease find the original in\n{zip_url}')
+                            fp.write(f'!!! The original file was too large !!!\nPlease find the complete ZIP on the platform')
 
             # Prepare commands
             competitor = task.competitor
