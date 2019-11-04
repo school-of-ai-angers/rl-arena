@@ -66,7 +66,7 @@ class PublisherController(TaskController):
                 ['mkdir', '-p', destination],
                 ['cp', '-r', tmpdir + '/.', destination],
                 ['git', '-C', 'data/publish_repo', 'add', '-A'],
-                ['git', '-C', 'data/publish_repo', 'commit', '-m', commit_message],
+                ['git', '-C', 'data/publish_repo', 'commit', '--allow-empty', '-m', commit_message],
                 ['git', '-C', 'data/publish_repo', 'push'],
             ]
 
