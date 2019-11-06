@@ -43,6 +43,8 @@ class SmokeController(TaskController):
             with default_storage.open(output_file) as fp:
                 contents = decompress(fp.read())
             result = json.loads(contents.decode('utf-8'))
+            if result['result'] == 'ERROR':
+                return self.TaskResult.error(result['error_msg'], duel_logs)
             for match in result['matches']:
                 if match['result'] == 'PLAYER_1_ERROR' or match['result'] == 'PLAYER_2_ERROR':
                     return self.TaskResult.error('Player failed with ' + match['error_msg'], duel_logs)
