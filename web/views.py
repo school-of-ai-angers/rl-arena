@@ -326,11 +326,14 @@ def duel_home(request, environment, tournament, competitor_1, competitor_2, matc
         EnvImpl = import_module(
             f'environments.{environment}.environment').Environment
         extra_head = EnvImpl.html_head()
+        players = [f'Player 1 ({duel.player_1.competitor.name})', f'Player 2 ({duel.player_2.competitor.name})']
+        if match_obj['first_player'] == 'PLAYER_2':
+            players = players[::-1]
         for i, state in enumerate(match_obj['states']):
             if i == 0:
                 message = 'Initial state'
             else:
-                message = f'Player {(i-1)%2 + 1} moved'
+                message = f'{players[(i-1)%2]} moved'
             if i == len(match_obj['states']) - 1:
                 message += '<br>Final state: ' + match_obj['result']
             states_html.append(
