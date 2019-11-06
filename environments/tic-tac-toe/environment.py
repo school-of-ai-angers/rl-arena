@@ -4,10 +4,10 @@ import numpy as np
 
 class Environment(BaseEnvironment):
     def __init__(self):
-        # Encode the board as 9 positions with -1 (empty), 0 or 1
-        self.board = np.full((9,), -1)
-        # The next player (0 or 1)
-        self.player = 0
+        # Encode the board as 9 positions with 0 (empty), 1 (first player) or -1 (second player).
+        # The position at line `i` and column `j` will be at `3*i+j`.
+        # The 10-th position is the current player (-1 or 1)
+        self.state = np.zeros((10,))
         # Win lines
         self.lines = [
             # Horizontal
@@ -24,8 +24,9 @@ class Environment(BaseEnvironment):
         - the new state
         - the list of valid actions
         """
-        self.board = np.full((9,), -1)
-        return self.board, np.arange(9)
+        self.state[:9] = 0
+        self.state[9] = 1
+        return self.state, np.arange(9)
 
     def step(self, action):
         """
@@ -36,29 +37,29 @@ class Environment(BaseEnvironment):
         - the list of valid actions
         """
         # Play
-        assert self.board[action] == -1, 'Invalid action'
-        self.board[action] = self.player
+        assert self.state[action] == 0, 'Invalid action'
+        self.state[action] = self.state[9]
 
         # Check end of game
         for line in self.lines:
-            marks = self.board[line]
-            if marks[0] != -1 and marks[0] == marks[1] and marks[1] == marks[2]:
+            marks = self.state[line]
+            if marks[0] != 0 and marks[0] == marks[1] and marks[1] == marks[2]:
                 # Current player won
-                return self.board, 1, True, []
-        if np.all(self.board != -1):
+                return self.state, 1, True, []
+        if np.all(self.state != 0):
             # Tie
-            return self.board, 0, True, []
+            return self.state, 0, True, []
 
         # Prepare next play
-        self.player = (self.player + 1) % 2
-        return self.board, 0, False, np.nonzero(self.board == -1)[0]
+        self.state[9] = -self.state[9]
+        return self.state, 0, False, np.nonzero(self.state == 0)[0]
 
     def to_jsonable(self):
         """
         Return a representation of the current state that can be encoded as JSON.
         This will be used later to visually display the game state at each step
         """
-        return self.board.tolist()
+        return self.state.tolist()
 
     @staticmethod
     def html_head():
@@ -73,9 +74,9 @@ class Environment(BaseEnvironment):
         Return a HTML representation of the game at the given state
         """
         def get_square(i):
-            if jsonable[i] == -1:
+            if jsonable[i] == 0:
                 return '&nbsp;'
-            elif jsonable[i] == 0:
+            elif jsonable[i] == 1:
                 return 'X'
             else:
                 return 'O'
