@@ -2,7 +2,7 @@ from core.task_controller import TaskController
 from core.models import Revision
 import os
 from django.conf import settings
-import subprocess
+from core.utils import run_shell
 import tempfile
 import shutil
 from zipfile import ZipFile
@@ -52,14 +52,14 @@ class BuilderController(TaskController):
             # Build image
             image_tag = str(uuid.uuid4())
             image_name = f'{image_base_name}:{image_tag}'
-            image_result, image_log = _run_shell(
+            image_result, image_log = run_shell(
                 ['docker', 'build', '--tag', image_name, tmpdir])
             if image_result != 0:
                 return self.TaskResult.error('Image failed to be built', image_log)
 
             if push_image:
                 # Push image
-                push_result, push_log = _run_shell(['docker', 'push', image_name])
+                push_result, push_log = run_shell(['docker', 'push', image_name])
                 if push_result != 0:
                     image_log += '\n---\n' + push_log
                     return self.TaskResult.error('Image failed to be pushed', image_log)
@@ -70,9 +70,3 @@ class BuilderController(TaskController):
 
 def main():
     BuilderController().run()
-
-
-def _run_shell(cmd):
-    result = subprocess.run(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
-    return result.returncode, result.stdout.decode('utf-8')

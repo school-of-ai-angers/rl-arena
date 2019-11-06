@@ -1,6 +1,6 @@
 from core.task_controller import TaskController
 from core.models import Revision
-import subprocess
+from core.utils import run_shell
 import tempfile
 import shutil
 from zipfile import ZipFile
@@ -73,11 +73,11 @@ class PublisherController(TaskController):
             # Run them sequentially
             logs = ''
             for cmd in cmds:
-                status, extra_logs = _run_shell(cmd)
+                status, extra_logs = run_shell(cmd)
                 logs += f'$ {cmd}\n{extra_logs}'
                 if status != 0:
                     return self.TaskResult.error(f'Operation failed with status {status}', logs)
-            _, commit = _run_shell(
+            _, commit = run_shell(
                 ['git', '-C', 'data/publish_repo', 'rev-parse', 'HEAD'])
             task.publish_url = f'{PUBLISHER_WEB_URL}/blob/{commit.strip()}/{environment.slug}/{competitor.name}/player.py'
             return self.TaskResult.success(logs)
@@ -85,19 +85,13 @@ class PublisherController(TaskController):
 
 def main():
     # Prepare GitHub repo
-    clone_status, clone_log = _run_shell(
+    clone_status, clone_log = run_shell(
         ['git', 'clone', os.environ['PUBLISHER_REMOTE'], 'data/publish_repo'])
     if clone_status != 0:
         logger.warn(clone_log)
     if not os.path.exists('data/publish_repo/.git'):
         raise Exception('Failed to clone repo')
-    _run_shell(['git', 'config', '--global', 'user.name', 'Publisher Bot'])
-    _run_shell(['git', 'config', '--global', 'user.email', 'publisher_bot'])
+    run_shell(['git', 'config', '--global', 'user.name', 'Publisher Bot'])
+    run_shell(['git', 'config', '--global', 'user.email', 'publisher_bot'])
 
     PublisherController().run()
-
-
-def _run_shell(cmd):
-    result = subprocess.run(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
-    return result.returncode, result.stdout.decode('utf-8')

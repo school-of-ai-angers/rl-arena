@@ -1,7 +1,7 @@
 import threading
 import os
 from queue import LifoQueue
-import subprocess
+from core.utils import run_shell
 import logging
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ def run_duel(image_1, image_2, environment, output_file):
 
     # Run
     try:
-        status, duel_logs = _run_shell([
+        status, duel_logs = run_shell([
             './run_duel.sh',
             namespace,
             image_1,

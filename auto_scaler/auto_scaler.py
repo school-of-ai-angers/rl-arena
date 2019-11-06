@@ -9,7 +9,7 @@ import math
 from django.utils import timezone
 import uuid
 import requests
-import subprocess
+from core.utils import run_shell
 
 sleep_time = timedelta(seconds=60)
 avg_over = 10
@@ -41,7 +41,7 @@ def main():
 
     # Get my commit
     global commit
-    status, commit = _run_shell(['git', 'rev-parse', 'HEAD'])
+    status, commit = run_shell(['git', 'rev-parse', 'HEAD'])
     assert status == 0, 'Failed to get commit'
     commit = commit.strip()
     logger.info(f'My commit is {commit}')
@@ -197,9 +197,3 @@ def destroy_worker(worker):
         return
 
     droplets[0].destroy()
-
-
-def _run_shell(cmd):
-    result = subprocess.run(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
-    return result.returncode, result.stdout.decode('utf-8')

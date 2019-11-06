@@ -1,4 +1,4 @@
-import subprocess
+from core.utils import run_shell
 import time
 import requests
 import os
@@ -7,14 +7,6 @@ import numpy as np
 MAX_HEALTH_CHECK_SECONDS = 30
 HEALTH_CHECK_INTERVAL_SECONDS = 0.5
 CALL_TIMEOUT = 10
-
-
-def _run_shell(cmd, extra_env):
-    env = os.environ.copy()
-    env.update(extra_env)
-    result = subprocess.run(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT, env=env)
-    return result.returncode, result.stdout.decode('utf-8')
 
 
 def _to_jsonable(x):
@@ -39,7 +31,7 @@ class RemotePlayer:
         self.service = service
 
         # Start docker
-        status, docker_log = _run_shell([
+        status, docker_log = run_shell([
             'docker-compose',
             '--project-name', namespace,
             '--file', 'run_duel/docker-compose.yml',
