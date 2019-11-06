@@ -13,12 +13,14 @@ for i in range(parallelism):
     available_namespaces.put_nowait(f'rl_arena_duel_{i}')
 
 
-def run_duel(image_1, image_2, environment, output_file):
+def run_duel(image_1, image_2, environment, output_file, log_1_file, log_2_file):
     """
     :param image_1: str
     :param image_2: str
     :param environment: str
     :param output_file: str
+    :param log_1_file: str
+    :param log_2_file: str
     :returns: int, str
     """
     # Grab (or wait for) a namespace
@@ -33,14 +35,10 @@ def run_duel(image_1, image_2, environment, output_file):
             image_1,
             image_2,
             environment,
-            output_file])
+            output_file,
+            log_1_file,
+            log_2_file])
     finally:
         available_namespaces.put_nowait(namespace)
 
     return status, duel_logs
-
-
-def _run_shell(cmd):
-    result = subprocess.run(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
-    return result.returncode, result.stdout.decode('utf-8')

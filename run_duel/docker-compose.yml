@@ -11,6 +11,8 @@ services:
       - DUEL_IMAGE_2
       - DUEL_ENVIRONMENT
       - DUEL_OUTPUT_FILE
+      - DUEL_LOG_1_FILE
+      - DUEL_LOG_2_FILE
       - DUEL_NAMESPACE
       - GS_BUCKET_NAME
       - LOG_LEVEL=INFO

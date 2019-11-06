@@ -7,11 +7,30 @@ import logging
 import os
 from gzip import compress
 from google.cloud import storage
+from core.utils import run_shell
 
 storage_client = storage.Client()
 bucket = storage_client.get_bucket(os.environ['GS_BUCKET_NAME'])
 logging.basicConfig(level=os.environ['LOG_LEVEL'])
 logger = logging.getLogger(__name__)
+
+
+def upload_player_logs(service, log_file):
+    logger.info(f'Read {service} logs')
+    log_status, log = run_shell([
+        'docker-compose',
+        '--project-name', namespace,
+        '--file', 'run_duel/docker-compose.yml',
+        'logs',
+        service,
+    ])
+    if log_status != 0:
+        logger.warning('Failed')
+        log = 'Failed to read container logs'
+
+    logger.info(f'Upload {service} logs to {log_file}')
+    bucket.blob(log_file).upload_from_string(log)
+
 
 if __name__ == '__main__':
     duel_result = {
@@ -35,6 +54,8 @@ if __name__ == '__main__':
         image_2 = os.environ['DUEL_IMAGE_2']
         environment = os.environ['DUEL_ENVIRONMENT']
         output_file = os.environ['DUEL_OUTPUT_FILE']
+        log_1_file = os.environ['DUEL_LOG_1_FILE']
+        log_2_file = os.environ['DUEL_LOG_2_FILE']
         namespace = os.environ['DUEL_NAMESPACE']
 
         logger.info('Load environment details')
@@ -111,7 +132,10 @@ if __name__ == '__main__':
         duel_result['result'] = 'ERROR'
         duel_result['error_msg'] = str(e)
 
-    logger.info(f'Upload to {output_file}')
+    logger.info(f'Upload output to {output_file}')
     blob = bucket.blob(output_file)
     contents = compress(json.dumps(duel_result).encode('utf-8'))
     blob.upload_from_string(contents, 'application/gzip')
+
+    upload_player_logs('player_1', log_1_file)
+    upload_player_logs('player_2', log_2_file)

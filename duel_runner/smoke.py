@@ -9,8 +9,6 @@ import json
 from gzip import decompress
 from duel_runner.run_duel import run_duel
 
-result_dir = 'revision_test_results'
-
 
 class SmokeController(TaskController):
     Model = Revision
@@ -28,10 +26,17 @@ class SmokeController(TaskController):
     def execute_task(self, task):
         # Run duel
         environment = task.competitor.environment
-        output_file = f'{result_dir}/{uuid.uuid4()}.json.gz'
-        status, duel_logs = run_duel(task.image_name, task.image_name, environment.slug, output_file)
+        output_file = f'revision_test_results/{uuid.uuid4()}.json.gz'
+        log_1_file = f'revision_test_player_logs/{uuid.uuid4()}.log'
+        log_2_file = f'revision_test_player_logs/{uuid.uuid4()}.log'
+        status, duel_logs = run_duel(task.image_name, task.image_name, environment.slug,
+                                     output_file, log_1_file, log_2_file)
         if status != 0:
             return self.TaskResult.error('Internal error', duel_logs)
+
+        # Save player logs
+        task.test_player_1_logs = log_1_file
+        task.test_player_2_logs = log_2_file
 
         # Check result
         try:

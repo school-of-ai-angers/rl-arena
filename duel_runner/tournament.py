@@ -9,8 +9,6 @@ import json
 from gzip import decompress
 from duel_runner.run_duel import run_duel
 
-result_dir = 'duel_results'
-
 
 class TournamentController(TaskController):
     Model = Duel
@@ -28,14 +26,22 @@ class TournamentController(TaskController):
     def execute_task(self, task):
         # Run duel
         environment = task.tournament.environment
-        output_file = f'{result_dir}/{uuid.uuid4()}.json.gz'
+        output_file = f'duel_results/{uuid.uuid4()}.json.gz'
+        log_1_file = f'duel_player_logs/{uuid.uuid4()}.log'
+        log_2_file = f'duel_player_logs/{uuid.uuid4()}.log'
         status, duel_logs = run_duel(
             task.player_1.image_name,
             task.player_2.image_name,
             environment.slug,
-            output_file)
+            output_file,
+            log_1_file,
+            log_2_file)
         if status != 0:
             return self.TaskResult.error('Internal error', duel_logs)
+
+        # Save player logs
+        task.player_1_logs = log_1_file
+        task.player_2_logs = log_2_file
 
         # Save result
         try:
