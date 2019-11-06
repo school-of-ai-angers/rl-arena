@@ -170,6 +170,7 @@ def competitor_home(request, env, competitor):
                 zip_file=form_data['zip_file'],
                 publish_state=Revision.PUBLISH_SCHEDULED if competitor.is_public else Revision.PUBLISH_SKIPPED
             )
+            return redirect(request.path_info)
     else:
         form = NewRevisionForm()
 
