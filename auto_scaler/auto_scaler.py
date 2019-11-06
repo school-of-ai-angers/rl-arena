@@ -9,6 +9,7 @@ import math
 from django.utils import timezone
 import uuid
 import requests
+import subprocess
 
 sleep_time = timedelta(seconds=60)
 avg_over = 10
@@ -23,6 +24,7 @@ size = os.environ['DO_SIZE']
 image = os.environ['DO_IMAGE']
 ssh_keys = os.environ['DO_SSH_KEYS']
 private_ip = ''
+commit = ''
 
 logger = logging.getLogger(__name__)
 duel_parallelism = int(os.environ['DUEL_PARALLELISM'])
@@ -36,6 +38,13 @@ def main():
     global private_ip
     private_ip = requests.get('http://169.254.169.254/metadata/v1/interfaces/private/0/ipv4/address').text
     logger.info(f'My private ip is {private_ip}')
+
+    # Get my commit
+    global commit
+    status, commit = _run_shell(['git', 'rev-parse', 'HEAD'])
+    assert status == 0, 'Failed to get commit'
+    commit = commit.strip()
+    logger.info(f'My commit is {commit}')
 
     while True:
         logger.info('Start cycle')
@@ -140,7 +149,8 @@ def create_n(n):
         worker = TaskWorker.objects.create(tag=name)
         user_data = f'''#!/bin/bash -e
         cd /root/rl-arena
-        git pull
+        git fetch
+        git checkout --force {commit}
         docker build -t rl-arena .
         DO_TAG="{name}" POSTGRES_HOST="{private_ip}" DUEL_PARALLELISM="{duel_parallelism}" docker-compose up -d duel_runner
         '''
@@ -187,3 +197,9 @@ def destroy_worker(worker):
         return
 
     droplets[0].destroy()
+
+
+def _run_shell(cmd):
+    result = subprocess.run(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT)
+    return result.returncode, result.stdout.decode('utf-8')
