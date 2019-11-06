@@ -59,7 +59,10 @@
                     {% endif %}
                     <br>
                     {% if fully_visible and revision.test_logs %}
-                        <a href="{% url 'revision_test_logs_download' active_environment_slug competitor.name revision.version_number %}">See logs</a>
+                        See logs:
+                        <a href="{% url 'revision_test_logs_download' active_environment_slug competitor.name revision.version_number 'arena' %}">arena</a>,
+                        <a href="{% url 'revision_test_logs_download' active_environment_slug competitor.name revision.version_number 'player_1'%}">player 1</a>,
+                        <a href="{% url 'revision_test_logs_download' active_environment_slug competitor.name revision.version_number 'player_2' %}">player 2</a>
                     {% endif %}
                 </td>
                 {% for participant in participants %}

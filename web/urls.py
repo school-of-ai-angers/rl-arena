@@ -47,7 +47,7 @@ urlpatterns = [
          views.revision_source_download, name='revision_source_download'),
     path('environment/<env>/competitor/<competitor>/revision/<int:revision>/image_logs',
          views.revision_image_logs_download, name='revision_image_logs_download'),
-    path('environment/<env>/competitor/<competitor>/revision/<int:revision>/test_logs',
+    path('environment/<env>/competitor/<competitor>/revision/<int:revision>/test_logs/<log_type>',
          views.revision_test_logs_download, name='revision_test_logs_download'),
     path('duel/<int:duel_id>/logs',
          views.duel_logs_download, name='duel_logs_download'),

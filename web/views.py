@@ -234,11 +234,15 @@ def revision_image_logs_download(request, env, competitor, revision):
     return _serve_file(revision.image_logs, 'image.log', 'application/text')
 
 
-def revision_test_logs_download(request, env, competitor, revision):
+def revision_test_logs_download(request, env, competitor, revision, log_type):
     revision = _get_fully_visible_revision(request, env, competitor, revision)
-    if revision.test_logs is None:
-        raise Http404()
-    return _serve_file(revision.test_logs, 'test.log', 'application/text')
+    if log_type == 'arena' and revision.test_logs:
+        return _serve_file(revision.test_logs, f'{log_type}.log', 'application/text')
+    if log_type == 'player_1' and revision.test_player_1_logs:
+        return _serve_file(revision.test_player_1_logs, f'{log_type}.log', 'application/text')
+    if log_type == 'player_2' and revision.test_player_2_logs:
+        return _serve_file(revision.test_player_2_logs, f'{log_type}.log', 'application/text')
+    raise Http404()
 
 
 def duel_logs_download(request, duel_id):
