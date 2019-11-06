@@ -218,6 +218,8 @@ class Revision(models.Model):
     test_error_msg = models.CharField(blank=True, max_length=200)
     # Smoke test logs
     test_logs = models.FileField(null=True)
+    test_player_1_logs = models.FileField(null=True)
+    test_player_2_logs = models.FileField(null=True)
     # Which worker executed this test
     test_task_worker = models.ForeignKey(TaskWorker, models.CASCADE, null=True)
 
@@ -314,6 +316,8 @@ class Duel(models.Model):
     started_at = models.DateTimeField(null=True)
     ended_at = models.DateTimeField(null=True)
     logs = models.FileField(null=True)
+    player_1_logs = models.FileField(null=True)
+    player_2_logs = models.FileField(null=True)
     results = models.FileField(null=True)
 
     # Which worker executed this duel
