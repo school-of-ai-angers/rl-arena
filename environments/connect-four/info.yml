@@ -9,6 +9,6 @@ description: |
   Object: Connect four of your checkers in a row while preventing your opponent from doing the same. But, look out -- your opponent can sneak up on you and win the game!
 
   Source: [Wikipedia](https://en.wikipedia.org/wiki/Connect_Four)
-num_matches_in_duel: 1000
+num_matches_in_duel: 500
 memory_limit: 4g
 cpu_limit: 1
